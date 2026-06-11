@@ -1,9 +1,22 @@
 import sqlite3
 import os
 import uuid
+import shutil
 from datetime import datetime, timedelta
 
-DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "f8auth.db")
+DB_NAME = "f8auth.db"
+LOCAL_DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), DB_NAME)
+
+# Vercel Serverless Function compatibility: use /tmp writeable folder
+if os.environ.get("VERCEL") == "1":
+    DB_PATH = os.path.join("/tmp", DB_NAME)
+    if not os.path.exists(DB_PATH) and os.path.exists(LOCAL_DB_PATH):
+        try:
+            shutil.copy2(LOCAL_DB_PATH, DB_PATH)
+        except Exception as e:
+            pass
+else:
+    DB_PATH = LOCAL_DB_PATH
 
 def get_db_connection():
     conn = sqlite3.connect(DB_PATH)

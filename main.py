@@ -12,11 +12,14 @@ from datetime import datetime, timedelta
 
 import database as db
 
-# Create directories if not exist
-os.makedirs("static/css", exist_ok=True)
-os.makedirs("static/js", exist_ok=True)
-os.makedirs("templates", exist_ok=True)
-os.makedirs("sdk", exist_ok=True)
+# Create directories if not exist (safe for read-only systems like Vercel)
+try:
+    os.makedirs("static/css", exist_ok=True)
+    os.makedirs("static/js", exist_ok=True)
+    os.makedirs("templates", exist_ok=True)
+    os.makedirs("sdk", exist_ok=True)
+except Exception:
+    pass
 
 app = FastAPI(
     title="F8Auth API",
