@@ -402,13 +402,13 @@ async function renderOverview(currentApp) {
             card.className = `api-card ${isSelected ? 'selected' : ''}`;
             
             let statusClass = "active";
-            let statusText = "ACTIVE";
+            let statusText = "HOẠT ĐỘNG";
             if (app.banned === 1) {
                 statusClass = "banned";
-                statusText = "BANNED";
+                statusText = "BỊ KHÓA";
             } else if (app.enabled === 0) {
                 statusClass = "inactive";
-                statusText = "PAUSED";
+                statusText = "TẠM DỪNG";
             }
             
             const pauseBtnLabel = app.enabled === 1 ? "Dừng" : "Kích hoạt";
@@ -431,10 +431,10 @@ async function renderOverview(currentApp) {
                         </button>
                     </div>
                 </div>
-                <p class="api-card-desc">Application Credentials - Simply replace the placeholder code in the example with these</p>
+                <p class="api-card-desc">Thông tin xác thực API - Sử dụng các thông tin này để tích hợp vào mã nguồn kết nối của bạn</p>
                 <div class="api-card-fields">
                     <div class="input-group">
-                        <label>APPLICATION NAME</label>
+                        <label>TÊN ỨNG DỤNG (APP NAME)</label>
                         <div class="copy-input">
                             <input type="text" id="api-name-${app.id}" value="${app.name}" readonly/>
                             <button onclick="event.stopPropagation(); copyToClipboard('api-name-${app.id}', 'Đã copy Tên API')">
@@ -443,7 +443,7 @@ async function renderOverview(currentApp) {
                         </div>
                     </div>
                     <div class="input-group">
-                        <label>ACCOUNT OWNER ID</label>
+                        <label>ID CHỦ TÀI KHOẢN (OWNER ID)</label>
                         <div class="copy-input">
                             <input type="text" id="api-owner-${app.id}" value="${app.owner_id}" readonly/>
                             <button onclick="event.stopPropagation(); copyToClipboard('api-owner-${app.id}', 'Đã copy Owner ID')">
@@ -452,17 +452,17 @@ async function renderOverview(currentApp) {
                         </div>
                     </div>
                     <div class="input-group">
-                        <label>APPLICATION SECRET</label>
+                        <label>MÃ BẢO MẬT (APP SECRET)</label>
                         <div class="copy-input">
                             <input type="password" id="api-secret-${app.id}" value="${app.secret}" readonly/>
-                            <button onclick="event.stopPropagation(); togglePasswordVisibility('api-secret-${app.id}')">Show</button>
+                            <button onclick="event.stopPropagation(); togglePasswordVisibility('api-secret-${app.id}')">Hiện</button>
                             <button onclick="event.stopPropagation(); copyToClipboard('api-secret-${app.id}', 'Đã copy App Secret')">
                                 <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                             </button>
                         </div>
                     </div>
                     <div class="input-group">
-                        <label>APPLICATION VERSION</label>
+                        <label>PHIÊN BẢN (APP VERSION)</label>
                         <div class="copy-input">
                             <input type="text" id="api-version-${app.id}" value="${app.version}" readonly/>
                             <button onclick="event.stopPropagation(); copyToClipboard('api-version-${app.id}', 'Đã copy Version')">
@@ -470,8 +470,7 @@ async function renderOverview(currentApp) {
                             </button>
                         </div>
                     </div>
-                </div>
-            `;
+                </div>`;
             
             card.addEventListener("click", () => {
                 selectApi(app.id);
@@ -585,9 +584,9 @@ function filterKeysTable() {
         const tr = document.createElement("tr");
         
         // Status Badge
-        let statusBadge = `<span class="badge-status unused">Unused</span>`;
-        if (k.status === 'active') statusBadge = `<span class="badge-status active">Active</span>`;
-        if (k.status === 'expired') statusBadge = `<span class="badge-status expired">Expired</span>`;
+        let statusBadge = `<span class="badge-status unused">Chưa kích hoạt</span>`;
+        if (k.status === 'active') statusBadge = `<span class="badge-status active">Đang hoạt động</span>`;
+        if (k.status === 'expired') statusBadge = `<span class="badge-status expired">Đã hết hạn</span>`;
         
         // Formatted dates
         const expStr = k.expiry_date ? new Date(k.expiry_date).toLocaleString('vi-VN') : 'Chưa kích hoạt';
@@ -1607,10 +1606,10 @@ function togglePasswordVisibility(elementId) {
     const btn = input.nextElementSibling;
     if (input.type === "password") {
         input.type = "text";
-        if (btn) btn.innerText = "Hide";
+        if (btn) btn.innerText = "Ẩn";
     } else {
         input.type = "password";
-        if (btn) btn.innerText = "Show";
+        if (btn) btn.innerText = "Hiện";
     }
 }
 

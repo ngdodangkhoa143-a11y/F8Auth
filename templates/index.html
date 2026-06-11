@@ -4,10 +4,10 @@
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>F8Auth - Premium License Management System</title>
-    <!-- Google Font Poppins & JetBrains Mono -->
+    <!-- Google Font Inter & JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com"/>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
     <link rel="stylesheet" href="/static/css/styles.css"/>
 </head>
 <body>
@@ -27,43 +27,43 @@
                     <span class="logo-text">F8<span class="gradient-text">Auth</span></span>
                 </div>
                 <nav class="landing-nav">
-                    <a href="#features" onclick="scrollToFeatures(); return false;">Features</a>
-                    <a href="#sdk" onclick="showAuthPage(false); return false;">SDK Integration</a>
-                    <button class="btn btn-secondary" onclick="showAuthPage(false)">Login</button>
-                    <button class="btn btn-primary" onclick="showAuthPage(true)">Register</button>
+                    <a href="#features" onclick="scrollToFeatures(); return false;">Tính năng</a>
+                    <a href="#sdk" onclick="showAuthPage(false); return false;">Tích hợp SDK</a>
+                    <button class="btn btn-secondary" onclick="showAuthPage(false)">Đăng nhập</button>
+                    <button class="btn btn-primary" onclick="showAuthPage(true)">Đăng ký</button>
                 </nav>
             </header>
 
             <main class="landing-hero">
                 <div class="hero-content">
-                    <div class="badge-new">NEW VERSION 2.0</div>
-                    <h1>Secure & Manage Your <span class="gradient-text">Software Licenses</span></h1>
-                    <p>F8Auth is a premium developer-first authentication service. Easily protect your programs, manage license keys, safe variables, files, and users through an elegant Web Dashboard.</p>
+                    <div class="badge-new">PHIÊN BẢN MỚI 2.0</div>
+                    <h1>Bảo mật & Quản lý <span class="gradient-text">Bản quyền Phần mềm</span></h1>
+                    <p>F8Auth là dịch vụ xác thực cao cấp dành riêng cho nhà phát triển. Dễ dàng bảo vệ chương trình, quản lý mã bản quyền (license key), biến đám mây, tệp tin an toàn và người dùng thông qua trang quản trị Web Dashboard hiện đại.</p>
                     <div class="hero-actions">
-                        <button class="btn btn-primary btn-lg" onclick="showAuthPage(true)">Get Started Free</button>
-                        <button class="btn btn-secondary btn-lg" onclick="scrollToFeatures()">Explore Features</button>
+                        <button class="btn btn-primary btn-lg" onclick="showAuthPage(true)">Bắt đầu miễn phí</button>
+                        <button class="btn btn-secondary btn-lg" onclick="scrollToFeatures()">Khám phá tính năng</button>
                     </div>
                 </div>
             </main>
 
             <section id="landing-features" class="landing-features">
-                <h2 class="section-title">Platform Features</h2>
+                <h2 class="section-title">Tính năng nền tảng</h2>
                 <div class="features-grid">
                     <div class="feature-card">
-                        <h3>Hardware Lock (HWID)</h3>
-                        <p>Lock licenses to a single machine's hardware profile to prevent unauthorized sharing of your software.</p>
+                        <h3>Khóa phần cứng (HWID)</h3>
+                        <p>Khóa bản quyền vào cấu hình phần cứng của một máy duy nhất để ngăn chặn việc chia sẻ phần mềm trái phép.</p>
                     </div>
                     <div class="feature-card">
-                        <h3>High Performance API</h3>
-                        <p>High-performance FastAPI database backend ensures authentication request times are minimal.</p>
+                        <h3>API hiệu năng cao</h3>
+                        <p>Hệ thống backend FastAPI tối ưu giúp giảm thiểu thời gian phản hồi của các yêu cầu xác thực.</p>
                     </div>
                     <div class="feature-card">
-                        <h3>Secure Cloud Variables</h3>
-                        <p>Store secrets and endpoints in the cloud. Download variables securely after client login.</p>
+                        <h3>Biến đám mây bảo mật</h3>
+                        <p>Lưu trữ các bí mật và endpoint trên đám mây. Tải xuống các biến một cách an toàn sau khi máy khách đăng nhập.</p>
                     </div>
                     <div class="feature-card">
-                        <h3>Level-Restricted Downloads</h3>
-                        <p>Distribute user files and security patches directly using developer-controlled download ranks.</p>
+                        <h3>Tải xuống giới hạn cấp độ</h3>
+                        <p>Phân phối các tệp tin người dùng và bản vá bảo mật trực tiếp thông qua cấp độ tải xuống do nhà phát triển kiểm soát.</p>
                     </div>
                 </div>
             </section>
@@ -74,32 +74,32 @@
             <div class="auth-wrapper">
                 <div class="auth-card">
                     <div class="auth-header">
-                        <h2>F8<span class="gradient-text">Auth</span> Account</h2>
-                        <p>Access the developer platform control center</p>
+                        <h2>Tài khoản F8<span class="gradient-text">Auth</span></h2>
+                        <p>Truy cập vào trung tâm quản trị nền tảng nhà phát triển</p>
                     </div>
 
                     <div class="auth-tabs">
-                        <button id="tab-login-btn" class="auth-tab-btn active" onclick="toggleAuthTab(false)">Login</button>
-                        <button id="tab-register-btn" class="auth-tab-btn" onclick="toggleAuthTab(true)">Register</button>
+                        <button id="tab-login-btn" class="auth-tab-btn active" onclick="toggleAuthTab(false)">Đăng nhập</button>
+                        <button id="tab-register-btn" class="auth-tab-btn" onclick="toggleAuthTab(true)">Đăng ký</button>
                     </div>
 
                     <!-- LOGIN FORM -->
                     <form id="form-login" class="auth-form active" onsubmit="handleLogin(event)">
                         <div class="input-group">
-                            <label for="login-username">Username</label>
-                            <input type="text" id="login-username" placeholder="Developer Username" required/>
+                            <label for="login-username">Tên đăng nhập</label>
+                            <input type="text" id="login-username" placeholder="Tên đăng nhập của bạn" required/>
                         </div>
                         <div class="input-group">
-                            <label for="login-password">Password</label>
+                            <label for="login-password">Mật khẩu</label>
                             <input type="password" id="login-password" placeholder="••••••••" required/>
                         </div>
                         <button type="submit" class="btn btn-primary btn-block">
-                            <span>Sign In</span>
+                            <span>Đăng nhập</span>
                             <span class="spinner hidden"></span>
                         </button>
 
                         <div class="auth-divider">
-                            <span>or continue with</span>
+                            <span>hoặc tiếp tục bằng</span>
                         </div>
 
                         <div class="oauth-group">
@@ -124,29 +124,29 @@
                     <!-- REGISTER FORM -->
                     <form id="form-register" class="auth-form" onsubmit="handleRegister(event)">
                         <div class="input-group">
-                            <label for="register-username">Username</label>
-                            <input type="text" id="register-username" placeholder="Choose a username" required/>
+                            <label for="register-username">Tên đăng nhập</label>
+                            <input type="text" id="register-username" placeholder="Chọn tên đăng nhập" required/>
                         </div>
                         <div class="input-group">
-                            <label for="register-email">Email Address</label>
+                            <label for="register-email">Địa chỉ Email</label>
                             <input type="email" id="register-email" placeholder="developer@f8auth.cc" required/>
                         </div>
                         <div class="input-group">
-                            <label for="register-password">Password</label>
-                            <input type="password" id="register-password" placeholder="Min. 6 characters" required/>
+                            <label for="register-password">Mật khẩu</label>
+                            <input type="password" id="register-password" placeholder="Tối thiểu 6 ký tự" required/>
                         </div>
                         <div class="input-group">
-                            <label for="register-confirm">Confirm Password</label>
-                            <input type="password" id="register-confirm" placeholder="Re-type password" required/>
+                            <label for="register-confirm">Xác nhận mật khẩu</label>
+                            <input type="password" id="register-confirm" placeholder="Nhập lại mật khẩu" required/>
                         </div>
                         <button type="submit" class="btn btn-primary btn-block">
-                            <span>Register Developer Account</span>
+                            <span>Đăng ký tài khoản</span>
                             <span class="spinner hidden"></span>
                         </button>
                     </form>
                     
                     <div class="auth-footer">
-                        <a href="#" onclick="showView('view-landing'); return false;">← Back to Home Page</a>
+                        <a href="#" onclick="showView('view-landing'); return false;">← Quay lại trang chủ</a>
                     </div>
                 </div>
             </div>
@@ -177,7 +177,7 @@
                         <!-- QUẢN LÝ BẢN QUYỀN -->
                         <div class="sidebar-category-title">Quản lý bản quyền</div>
                         <div class="nav-item" id="menu-keys" onclick="switchTab('keys')">
-                            License Keys
+                            Mã bản quyền (Keys)
                         </div>
                         <div class="nav-item" id="menu-users" onclick="switchTab('users')">
                             Người dùng
@@ -202,7 +202,7 @@
                         </div>
                     </nav>
                     <div class="sidebar-footer">
-                        <button class="btn btn-danger btn-block" onclick="handleLogout()">Sign Out</button>
+                        <button class="btn btn-danger btn-block" onclick="handleLogout()">Đăng xuất</button>
                     </div>
                 </aside>
 
@@ -221,9 +221,9 @@
                     <!-- NO APP OVERLAY -->
                     <div id="no-app-overlay" class="no-app-overlay">
                         <div class="no-app-card">
-                            <h2>No Application Selected</h2>
-                            <p>To begin monitoring licenses, users, variables, and logs, select an application from the dropdown above or create a new one.</p>
-                            <button class="btn btn-primary" onclick="openModal('modal-create-app')">Create Your First App</button>
+                            <h2>Chưa chọn ứng dụng</h2>
+                            <p>Để bắt đầu theo dõi bản quyền, người dùng, biến và logs, hãy chọn một ứng dụng từ menu thả xuống ở trên hoặc tạo một ứng dụng mới.</p>
+                            <button class="btn btn-primary" onclick="openModal('modal-create-app')">Tạo ứng dụng đầu tiên</button>
                         </div>
                     </div>
 
@@ -298,8 +298,8 @@
                         <div id="tab-keys" class="dashboard-tab-content">
                             <div class="tab-header flex-header">
                                 <div>
-                                    <h1>License Key Management</h1>
-                                    <p>Create, search, filter, and invalidate software serial keys.</p>
+                                    <h1>Quản lý License Keys</h1>
+                                    <p>Tạo, tìm kiếm, lọc và hủy kích hoạt các mã khóa bản quyền phần mềm.</p>
                                 </div>
                                 <div class="header-actions">
                                     <button class="btn btn-primary" onclick="openModal('modal-generate-keys')">Tạo License Key</button>
@@ -308,12 +308,12 @@
                             </div>
 
                             <div class="filter-bar">
-                                <input type="text" id="search-keys-input" placeholder="Search Key String or Note..." oninput="filterKeysTable()"/>
+                                <input type="text" id="search-keys-input" placeholder="Tìm kiếm chuỗi Key hoặc Ghi chú..." oninput="filterKeysTable()"/>
                                 <select id="filter-keys-select" onchange="filterKeysTable()">
-                                    <option value="all">All Statuses</option>
-                                    <option value="unused">Unused</option>
-                                    <option value="active">Active</option>
-                                    <option value="expired">Expired</option>
+                                    <option value="all">Tất cả trạng thái</option>
+                                    <option value="unused">Chưa kích hoạt (Unused)</option>
+                                    <option value="active">Đang hoạt động (Active)</option>
+                                    <option value="expired">Đã hết hạn (Expired)</option>
                                 </select>
                             </div>
 
@@ -321,18 +321,18 @@
                                 <table class="data-table">
                                     <thead>
                                         <tr>
-                                            <th>Key String</th>
-                                            <th>Duration</th>
-                                            <th>Expiry Date</th>
-                                            <th>Hardware ID Lock</th>
-                                            <th>Note</th>
-                                            <th>Status</th>
-                                            <th>Actions</th>
+                                            <th>Chuỗi Key</th>
+                                            <th>Thời hạn</th>
+                                            <th>Ngày hết hạn</th>
+                                            <th>Khóa phần cứng (HWID)</th>
+                                            <th>Ghi chú</th>
+                                            <th>Trạng thái</th>
+                                            <th>Hành động</th>
                                         </tr>
                                     </thead>
                                     <tbody id="keys-table-body">
                                         <tr>
-                                            <td colspan="8" style="text-align:center;">No keys loaded.</td>
+                                            <td colspan="8" style="text-align:center;">Chưa có license keys nào được tải.</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -343,31 +343,31 @@
                         <div id="tab-users" class="dashboard-tab-content">
                             <div class="tab-header flex-header">
                                 <div>
-                                    <h1>Registered Application Users</h1>
-                                    <p>Review users authenticated using generated serial keys.</p>
+                                    <h1>Danh sách người dùng ứng dụng</h1>
+                                    <p>Kiểm tra thông tin những người dùng đã xác thực bằng khóa bản quyền.</p>
                                 </div>
-                                <button class="btn btn-primary" onclick="openModal('modal-create-user')">Manual Create User</button>
+                                <button class="btn btn-primary" onclick="openModal('modal-create-user')">Tạo người dùng thủ công</button>
                             </div>
 
                             <div class="filter-bar">
-                                <input type="text" id="search-users-input" placeholder="Search Username or Key Used..." oninput="filterUsersTable()"/>
+                                <input type="text" id="search-users-input" placeholder="Tìm kiếm tên đăng nhập hoặc key..." oninput="filterUsersTable()"/>
                             </div>
 
                             <div class="table-container">
                                 <table class="data-table">
                                     <thead>
                                         <tr>
-                                            <th>Username</th>
-                                            <th>Key Activated</th>
-                                            <th>Hardware ID</th>
-                                            <th>Created At</th>
-                                            <th>Last Login</th>
-                                            <th>Actions</th>
+                                            <th>Tên đăng nhập</th>
+                                            <th>Key đã kích hoạt</th>
+                                            <th>Khóa phần cứng (HWID)</th>
+                                            <th>Ngày tạo</th>
+                                            <th>Đăng nhập cuối</th>
+                                            <th>Hành động</th>
                                         </tr>
                                     </thead>
                                     <tbody id="users-table-body">
                                         <tr>
-                                            <td colspan="7" style="text-align:center;">No users registered yet.</td>
+                                            <td colspan="7" style="text-align:center;">Chưa có người dùng nào đăng ký.</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -378,24 +378,24 @@
                         <div id="tab-variables" class="dashboard-tab-content">
                             <div class="tab-header flex-header">
                                 <div>
-                                    <h1>Safe Cloud Variables</h1>
-                                    <p>Variables stored securely in database, only accessible after client authentication.</p>
+                                    <h1>Biến đám mây bảo mật</h1>
+                                    <p>Các biến được lưu trữ bảo mật trên đám mây, chỉ có thể đọc được sau khi máy khách đăng nhập thành công.</p>
                                 </div>
-                                <button class="btn btn-primary" onclick="openModal('modal-create-var')">Create Variable</button>
+                                <button class="btn btn-primary" onclick="openModal('modal-create-var')">Tạo biến mới</button>
                             </div>
 
                             <div class="table-container">
                                 <table class="data-table">
                                     <thead>
                                         <tr>
-                                            <th>Variable Name</th>
-                                            <th>Secret Value</th>
-                                            <th style="width:120px; text-align:center;">Actions</th>
+                                            <th>Tên biến</th>
+                                            <th>Giá trị bảo mật</th>
+                                            <th style="width:120px; text-align:center;">Hành động</th>
                                         </tr>
                                     </thead>
                                     <tbody id="vars-table-body">
                                         <tr>
-                                            <td colspan="3" style="text-align:center;">No variables created.</td>
+                                            <td colspan="3" style="text-align:center;">Chưa có biến nào được tạo.</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -406,25 +406,25 @@
                         <div id="tab-files" class="dashboard-tab-content">
                             <div class="tab-header flex-header">
                                 <div>
-                                    <h1>Protected File Distribution</h1>
-                                    <p>Deliver updates or dependencies only to users of matching rank levels.</p>
+                                    <h1>Phân phối tệp bảo mật</h1>
+                                    <p>Chỉ phân phối các bản cập nhật hoặc tệp phụ thuộc cho người dùng có cấp độ phù hợp.</p>
                                 </div>
-                                <button class="btn btn-primary" onclick="openModal('modal-create-file')">Add Secure File</button>
+                                <button class="btn btn-primary" onclick="openModal('modal-create-file')">Thêm tệp bảo mật</button>
                             </div>
 
                             <div class="table-container">
                                 <table class="data-table">
                                     <thead>
                                         <tr>
-                                            <th>File ID</th>
-                                            <th>File Name</th>
-                                            <th>Download Endpoint URL</th>
-                                            <th style="width:120px; text-align:center;">Actions</th>
+                                            <th>ID tệp</th>
+                                            <th>Tên tệp</th>
+                                            <th>Đường dẫn tải xuống</th>
+                                            <th style="width:120px; text-align:center;">Hành động</th>
                                         </tr>
                                     </thead>
                                     <tbody id="files-table-body">
                                         <tr>
-                                            <td colspan="5" style="text-align:center;">No files available.</td>
+                                            <td colspan="5" style="text-align:center;">Không có tệp nào khả dụng.</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -435,10 +435,10 @@
                         <div id="tab-logs" class="dashboard-tab-content">
                             <div class="tab-header flex-header">
                                 <div>
-                                    <h1>Live Telemetry Logs</h1>
-                                    <p>Live history logs of developer events and client verification actions.</p>
+                                    <h1>Nhật ký hoạt động thời gian thực</h1>
+                                    <p>Lịch sử thời gian thực các sự kiện của nhà phát triển và hành động xác thực của máy khách.</p>
                                 </div>
-                                <button class="btn btn-danger" onclick="clearAppLogs()">Clear Log History</button>
+                                <button class="btn btn-danger" onclick="clearAppLogs()">Xóa lịch sử nhật ký</button>
                             </div>
 
                             <div class="terminal-shell">
@@ -449,7 +449,7 @@
                                     <span class="terminal-title">f8auth@logs: ~</span>
                                 </div>
                                 <div id="terminal-logs" class="terminal-body">
-                                    <div class="log-line">System ready. Waiting for application updates...</div>
+                                    <div class="log-line">Hệ thống đã sẵn sàng. Đang chờ cập nhật ứng dụng...</div>
                                 </div>
                             </div>
                         </div>
@@ -502,18 +502,18 @@
                         <!-- TAB 8: APP SETTINGS -->
                         <div id="tab-settings" class="dashboard-tab-content">
                             <div class="tab-header">
-                                <h1>Application Global Settings</h1>
-                                <p>Control updates, versions, toggles and developer level permissions.</p>
+                                <h1>Cấu hình ứng dụng toàn cục</h1>
+                                <p>Quản lý phiên bản, cập nhật ứng dụng, cấu hình bảo mật và cấp quyền.</p>
                             </div>
 
                             <form id="form-settings" class="settings-form" onsubmit="saveAppSettings(event)">
                                 <div class="settings-grid">
                                     <div class="input-group">
-                                        <label for="settings-app-version">Active App Version</label>
+                                        <label for="settings-app-version">Phiên bản ứng dụng hoạt động</label>
                                         <input type="text" id="settings-app-version" required/>
                                     </div>
                                     <div class="input-group">
-                                        <label for="settings-download-url">App Update/Download URL</label>
+                                        <label for="settings-download-url">Đường dẫn tải xuống bản cập nhật</label>
                                         <input type="url" id="settings-download-url"/>
                                     </div>
                                 </div>
@@ -522,26 +522,26 @@
                                     <label class="switch-container">
                                         <input type="checkbox" id="settings-hwid-lock"/>
                                         <span class="slider-toggle"></span>
-                                        <span class="switch-label">Enable HWID lock security</span>
+                                        <span class="switch-label">Bật bảo mật khóa phần cứng (HWID)</span>
                                     </label>
                                     <label class="switch-container">
                                         <input type="checkbox" id="settings-app-enabled"/>
                                         <span class="slider-toggle"></span>
-                                        <span class="switch-label">Allow authentication queries (Application Online)</span>
+                                        <span class="switch-label">Cho phép các yêu cầu xác thực (Trực tuyến)</span>
                                     </label>
                                     <label class="switch-container">
                                         <input type="checkbox" id="settings-app-banned" onchange="toggleBanReasonInput()"/>
                                         <span class="slider-toggle"></span>
-                                        <span class="switch-label">Restrict application usage (BANNED status)</span>
+                                        <span class="switch-label">Chặn sử dụng ứng dụng (Trạng thái BỊ KHÓA - BANNED)</span>
                                     </label>
                                 </div>
 
                                 <div id="ban-reason-container" class="input-group hidden">
-                                    <label for="settings-ban-reason">App Block/Ban Reason Description</label>
-                                    <textarea id="settings-ban-reason" placeholder="Write description shown to client when application is blocked..."></textarea>
+                                    <label for="settings-ban-reason">Lý do chặn/khóa ứng dụng</label>
+                                    <textarea id="settings-ban-reason" placeholder="Nhập mô tả sẽ hiển thị cho người dùng khi ứng dụng bị khóa..."></textarea>
                                 </div>
 
-                                <button type="submit" class="btn btn-primary">Save Config Settings</button>
+                                <button type="submit" class="btn btn-primary">Lưu cấu hình</button>
                             </form>
                         </div>
                     </div>
@@ -556,17 +556,17 @@
     <div id="modal-create-app" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Create New Application</h2>
+                <h2>Tạo ứng dụng mới</h2>
                 <span class="modal-close" onclick="closeModal('modal-create-app')">&times;</span>
             </div>
             <form onsubmit="handleCreateApp(event)">
                 <div class="input-group">
-                    <label for="create-app-name">Application Name</label>
-                    <input type="text" id="create-app-name" placeholder="MyCoolApp" required minlength="3"/>
+                    <label for="create-app-name">Tên ứng dụng</label>
+                    <input type="text" id="create-app-name" placeholder="Tên ứng dụng của bạn" required minlength="3"/>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal('modal-create-app')">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Create App</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('modal-create-app')">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Tạo ứng dụng</button>
                 </div>
             </form>
         </div>
@@ -582,11 +582,11 @@
             <form onsubmit="handleGenerateKeys(event)">
                 <div class="modal-grid-2">
                     <div class="input-group">
-                        <label for="gen-amount">Số lượng (Quantity)</label>
+                        <label for="gen-amount">Số lượng</label>
                         <input type="number" id="gen-amount" value="1" min="1" max="100" required/>
                     </div>
                     <div class="input-group">
-                        <label for="gen-key-type">Loại Key (Key Type)</label>
+                        <label for="gen-key-type">Loại Key</label>
                         <select id="gen-key-type" onchange="toggleKeyTypeInput()">
                             <option value="random">Random key 7 ký tự</option>
                             <option value="custom">Đặt tên key theo yêu cầu</option>
@@ -599,7 +599,7 @@
                         <input type="text" id="gen-custom-key" placeholder="Nhập tên key mong muốn"/>
                     </div>
                     <div class="input-group">
-                        <label for="gen-duration">Thời hạn (Duration)</label>
+                        <label for="gen-duration">Thời hạn</label>
                         <select id="gen-duration">
                             <option value="1">1 ngày (1 Day)</option>
                             <option value="3">3 ngày (3 Days)</option>
@@ -611,8 +611,8 @@
                 </div>
                 <input type="hidden" id="gen-level" value="1"/>
                 <div class="input-group">
-                    <label for="gen-note">Ghi chú (Notes)</label>
-                    <input type="text" id="gen-note" placeholder="VIP Customer keys"/>
+                    <label for="gen-note">Ghi chú</label>
+                    <input type="text" id="gen-note" placeholder="Ví dụ: Key cho khách hàng VIP"/>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" onclick="closeModal('modal-generate-keys')">Hủy</button>
@@ -626,22 +626,22 @@
     <div id="modal-create-user" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Create User Account Manually</h2>
+                <h2>Tạo người dùng thủ công</h2>
                 <span class="modal-close" onclick="closeModal('modal-create-user')">&times;</span>
             </div>
             <form onsubmit="handleCreateUserManual(event)">
                 <div class="input-group">
-                    <label for="create-user-username">Username</label>
-                    <input type="text" id="create-user-username" placeholder="testuser" required minlength="3"/>
+                    <label for="create-user-username">Tên đăng nhập</label>
+                    <input type="text" id="create-user-username" placeholder="Nhập tên đăng nhập" required minlength="3"/>
                 </div>
                 <div class="input-group">
-                    <label for="create-user-password">Password</label>
+                    <label for="create-user-password">Mật khẩu</label>
                     <input type="password" id="create-user-password" placeholder="••••••••" required minlength="6"/>
                 </div>
                 <input type="hidden" id="create-user-level" value="1"/>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal('modal-create-user')">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Add User</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('modal-create-user')">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Thêm người dùng</button>
                 </div>
             </form>
         </div>
@@ -651,21 +651,21 @@
     <div id="modal-user-password" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Change User Password</h2>
+                <h2>Đổi mật khẩu người dùng</h2>
                 <span class="modal-close" onclick="closeModal('modal-user-password')">&times;</span>
             </div>
             <form onsubmit="handleUpdateUserPassword(event)">
                 <input type="hidden" id="modal-pwd-user-id"/>
                 <div style="margin-bottom: 1rem; font-size: 0.9rem; color: var(--text-secondary);">
-                    Updating credentials for user: <strong id="modal-pwd-username" style="color:var(--accent-secondary);">username</strong>
+                    Cập nhật thông tin đăng nhập cho người dùng: <strong id="modal-pwd-username" style="color:var(--accent-secondary);">username</strong>
                 </div>
                 <div class="input-group">
-                    <label for="update-user-password">New Password</label>
-                    <input type="password" id="update-user-password" placeholder="Min. 6 characters" required minlength="6"/>
+                    <label for="update-user-password">Mật khẩu mới</label>
+                    <input type="password" id="update-user-password" placeholder="Tối thiểu 6 ký tự" required minlength="6"/>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal('modal-user-password')">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Change Password</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('modal-user-password')">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Đổi mật khẩu</button>
                 </div>
             </form>
         </div>
@@ -675,21 +675,21 @@
     <div id="modal-create-var" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Create Cloud Variable</h2>
+                <h2>Tạo biến đám mây</h2>
                 <span class="modal-close" onclick="closeModal('modal-create-var')">&times;</span>
             </div>
             <form onsubmit="handleCreateVariable(event)">
                 <div class="input-group">
-                    <label for="create-var-name">Variable Name</label>
-                    <input type="text" id="create-var-name" placeholder="api_endpoint" required/>
+                    <label for="create-var-name">Tên biến</label>
+                    <input type="text" id="create-var-name" placeholder="Ví dụ: api_endpoint" required/>
                 </div>
                 <div class="input-group">
-                    <label for="create-var-value">Value</label>
-                    <input type="text" id="create-var-value" placeholder="https://secure-api.net/v1" required/>
+                    <label for="create-var-value">Giá trị</label>
+                    <input type="text" id="create-var-value" placeholder="Ví dụ: https://secure-api.net/v1" required/>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal('modal-create-var')">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Add Variable</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('modal-create-var')">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Thêm biến</button>
                 </div>
             </form>
         </div>
@@ -699,22 +699,22 @@
     <div id="modal-create-file" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Protect File Endpoint</h2>
+                <h2>Bảo vệ đường dẫn tệp</h2>
                 <span class="modal-close" onclick="closeModal('modal-create-file')">&times;</span>
             </div>
             <form onsubmit="handleCreateFile(event)">
                 <div class="input-group">
-                    <label for="create-file-name">Display Name</label>
-                    <input type="text" id="create-file-name" placeholder="crack_patch.dll" required/>
+                    <label for="create-file-name">Tên hiển thị</label>
+                    <input type="text" id="create-file-name" placeholder="Ví dụ: patch_update.dll" required/>
                 </div>
                 <div class="input-group">
-                    <label for="create-file-url">External Storage URL</label>
-                    <input type="url" id="create-file-url" placeholder="https://mybucket.s3.amazonaws.com/crack_patch.dll" required/>
+                    <label for="create-file-url">Đường dẫn lưu trữ ngoài</label>
+                    <input type="url" id="create-file-url" placeholder="Ví dụ: https://mybucket.s3.amazonaws.com/patch_update.dll" required/>
                 </div>
                 <input type="hidden" id="create-file-level" value="1"/>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal('modal-create-file')">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save File Path</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('modal-create-file')">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Lưu đường dẫn tệp</button>
                 </div>
             </form>
         </div>
@@ -723,7 +723,7 @@
     <!-- SCRIPTS -->
     <!-- Three.js CDN - optional background effect, if it fails the app still works -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" onerror="console.warn('Three.js CDN failed to load')"></script>
-    <script src="/static/js/three-bg.js?v=2"></script>
-    <script src="/static/js/app.js?v=2"></script>
+    <script src="/static/js/three-bg.js?v=3"></script>
+    <script src="/static/js/app.js?v=3"></script>
 </body>
 </html>
