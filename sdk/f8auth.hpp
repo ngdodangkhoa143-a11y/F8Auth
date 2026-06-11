@@ -126,7 +126,7 @@ namespace F8Auth {
         }
 
     public:
-        Client(const std::wstring& host, int port, bool https, const std::string& name, const std::string& secret, const std::string& owner, const std::string& version) 
+        Client(const std::wstring& host, int port, bool https, const std::string& name = "F8AuthDemo", const std::string& secret = "demo_secret_key", const std::string& owner = "demo_owner_id", const std::string& version = "1.0.0") 
             : apiHost(host), apiPort(port), isHttps(https), appName(name), appSecret(secret), ownerId(owner), appVersion(version) {
             hwid = GenerateHWID();
         }

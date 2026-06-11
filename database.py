@@ -161,6 +161,47 @@ def init_db():
     )
     """)
     
+    # Seed default developer, application, license key, variable, and file
+    # Developer
+    cursor.execute("SELECT id FROM developers WHERE username = 'demo_dev'")
+    if not cursor.fetchone():
+        cursor.execute(
+            "INSERT INTO developers (id, username, password_hash, email, created_at) VALUES (?, ?, ?, ?, ?)",
+            ("demo_owner_id", "demo_dev", "8c1af52d5cbed024e45d05ded3ed9e3f9aa347f852fd5e3855797c15a42092cb", "demo_dev@f8auth.cc", datetime.now().isoformat())
+        )
+    
+    # Application
+    cursor.execute("SELECT id FROM applications WHERE name = 'F8AuthDemo'")
+    if not cursor.fetchone():
+        cursor.execute(
+            "INSERT INTO applications (id, name, secret, owner_id, version, download_url, hwid_lock, enabled, banned, ban_reason, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            ("demo_app_id", "F8AuthDemo", "demo_secret_key", "demo_owner_id", "1.0.0", "", 1, 1, 0, "", datetime.now().isoformat())
+        )
+        
+    # License Key
+    cursor.execute("SELECT id FROM license_keys WHERE key_string = 'F8AUTH-TEST-KEY'")
+    if not cursor.fetchone():
+        cursor.execute(
+            "INSERT INTO license_keys (id, key_string, app_id, duration_days, expiry_date, level, status, note, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            ("demo_key_id", "F8AUTH-TEST-KEY", "demo_app_id", 99999, None, 1, "unused", "Default demo license key", datetime.now().isoformat())
+        )
+
+    # Cloud Variable
+    cursor.execute("SELECT id FROM variables WHERE app_id = ? AND name = ?", ("demo_app_id", "demo_variable"))
+    if not cursor.fetchone():
+        cursor.execute(
+            "INSERT INTO variables (id, app_id, name, value) VALUES (?, ?, ?, ?)",
+            ("demo_var_id", "demo_app_id", "demo_variable", "Welcome to F8Auth Demo!")
+        )
+
+    # File
+    cursor.execute("SELECT id FROM files WHERE app_id = ? AND name = ?", ("demo_app_id", "demo_file"))
+    if not cursor.fetchone():
+        cursor.execute(
+            "INSERT INTO files (id, app_id, name, file_url, level) VALUES (?, ?, ?, ?, ?)",
+            ("demo_file_id", "demo_app_id", "demo_file", "https://example.com/demo_file.bin", 1)
+        )
+    
     conn.commit()
     conn.close()
 

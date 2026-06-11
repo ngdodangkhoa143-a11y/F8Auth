@@ -162,9 +162,18 @@ if __name__ == "__main__":
     if not api_endpoint:
         api_endpoint = DEFAULT_API_BASE
         
-    app_name = input("Enter Application Name: ").strip()
-    owner_id = input("Enter Owner ID: ").strip()
-    app_secret = input("Enter App Secret: ").strip()
+    app_name = input("Enter Application Name (default: F8AuthDemo): ").strip()
+    if not app_name:
+        app_name = "F8AuthDemo"
+        
+    owner_id = input("Enter Owner ID (default: demo_owner_id): ").strip()
+    if not owner_id:
+        owner_id = "demo_owner_id"
+        
+    app_secret = input("Enter App Secret (default: demo_secret_key): ").strip()
+    if not app_secret:
+        app_secret = "demo_secret_key"
+        
     version = input("Enter Version (default: 1.0.0): ").strip()
     if not version:
         version = "1.0.0"
@@ -189,7 +198,9 @@ if __name__ == "__main__":
         if choice == "1":
             user = input("Username: ").strip()
             pwd = input("Password: ").strip()
-            key = input("License Key: ").strip()
+            key = input("License Key (default: F8AUTH-TEST-KEY): ").strip()
+            if not key:
+                key = "F8AUTH-TEST-KEY"
             client.register(user, pwd, key)
             
         elif choice == "2":
@@ -198,11 +209,15 @@ if __name__ == "__main__":
             client.login(user, pwd)
             
         elif choice == "3":
-            key = input("License Key: ").strip()
+            key = input("License Key (default: F8AUTH-TEST-KEY): ").strip()
+            if not key:
+                key = "F8AUTH-TEST-KEY"
             client.license_only(key)
             
         elif choice == "4":
-            var_name = input("Enter Variable Name: ").strip()
+            var_name = input("Enter Variable Name (default: demo_variable): ").strip()
+            if not var_name:
+                var_name = "demo_variable"
             val = client.get_var(var_name)
             if val is not None:
                 print(f"[+] Value: {val}")

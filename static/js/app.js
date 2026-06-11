@@ -244,7 +244,7 @@ async function loadDeveloperApps() {
         currentState.apps = apps;
         
         const select = document.getElementById("dashboard-app-select");
-        select.innerHTML = '<option value="">-- Chọn ứng dụng --</option>';
+        select.innerHTML = '<option value="">-- Chọn API --</option>';
         
         apps.forEach(app => {
             const opt = document.createElement("option");
@@ -259,6 +259,14 @@ async function loadDeveloperApps() {
             document.getElementById("no-app-overlay").classList.add("hidden");
             document.getElementById("dashboard-content").classList.remove("hidden");
             await loadActiveTabData();
+        } else if (apps.length > 0) {
+            const firstApp = apps[0].id;
+            currentState.selectedAppId = firstApp;
+            localStorage.setItem("f8auth_selected_appid", firstApp);
+            select.value = firstApp;
+            document.getElementById("no-app-overlay").classList.add("hidden");
+            document.getElementById("dashboard-content").classList.remove("hidden");
+            await loadActiveTabData();
         } else {
             currentState.selectedAppId = null;
             localStorage.removeItem("f8auth_selected_appid");
@@ -266,7 +274,7 @@ async function loadDeveloperApps() {
             document.getElementById("dashboard-content").classList.add("hidden");
         }
     } catch (err) {
-        showToast("Không thể tải danh sách ứng dụng", "danger");
+        showToast("Không thể tải danh sách API", "danger");
     }
 }
 
@@ -275,7 +283,7 @@ async function handleCreateApp(e) {
     const name = document.getElementById("create-app-name").value;
     try {
         const app = await apiRequest("/api/developer/apps", "POST", { name });
-        showToast(`Đã tạo ứng dụng '${name}' thành công!`, "success");
+        showToast(`Đã tạo API '${name}' thành công!`, "success");
         closeModal("modal-create-app");
         e.target.reset();
         
@@ -359,59 +367,185 @@ async function loadActiveTabData() {
 }
 
 // ==================== TAB 1: OVERVIEW RENDERING ====================
-async function renderOverview(app) {
-    document.getElementById("overview-app-title").innerText = app.name;
+async function renderOverview(currentApp) {
+    const apiListContainer = document.getElementById("overview-api-list");
+    if (!apiListContainer) return;
     
-    // Populate credentials
-    document.getElementById("cred-app-name").value = app.name;
-    document.getElementById("cred-app-secret").value = app.secret;
-    document.getElementById("cred-owner-id").value = app.owner_id;
-    document.getElementById("cred-api-url").value = API_BASE;
+    apiListContainer.innerHTML = '<div style="color:var(--text-secondary);">Đang tải danh sách API...</div>';
     
-    // Update app status widgets
-    const statusDotEnabled = document.getElementById("status-dot-enabled");
-    const statusTextEnabled = document.getElementById("status-text-enabled");
-    if (app.enabled) {
-        statusDotEnabled.className = "status-dot green";
-        statusTextEnabled.innerText = "Ứng dụng đang hoạt động (Online)";
-    } else {
-        statusDotEnabled.className = "status-dot red";
-        statusTextEnabled.innerText = "Ứng dụng đang bị khóa (Offline)";
-    }
+    const totalApis = currentState.apps.length;
+    const activeApis = currentState.apps.filter(app => app.enabled === 1 && app.banned === 0).length;
     
-    const statusDotHwid = document.getElementById("status-dot-hwid");
-    const statusTextHwid = document.getElementById("status-text-hwid");
-    if (app.hwid_lock) {
-        statusDotHwid.className = "status-dot green";
-        statusTextHwid.innerText = "Khóa HWID: Bật";
-    } else {
-        statusDotHwid.className = "status-dot red";
-        statusTextHwid.innerText = "Khóa HWID: Tắt";
-    }
-
-    const statusDotBan = document.getElementById("status-dot-ban");
-    const statusTextBan = document.getElementById("status-text-ban");
-    if (app.banned) {
-        statusDotBan.className = "status-dot red";
-        statusTextBan.innerText = `Ứng dụng bị BAN (${app.ban_reason || 'Không rõ lý do'})`;
-    } else {
-        statusDotBan.className = "status-dot green";
-        statusTextBan.innerText = "Trạng thái ứng dụng: Tốt";
-    }
+    document.getElementById("overview-total-apis").innerText = totalApis;
+    document.getElementById("overview-active-apis").innerText = activeApis;
     
-    // Fetch stats
     try {
-        const keys = await apiRequest(`/api/developer/apps/${app.id}/keys`);
-        const users = await apiRequest(`/api/developer/apps/${app.id}/users`);
-        const vars = await apiRequest(`/api/developer/apps/${app.id}/variables`);
-        const files = await apiRequest(`/api/developer/apps/${app.id}/files`);
+        let totalLicenses = 0;
+        const keysPromises = currentState.apps.map(app => 
+            apiRequest(`/api/developer/apps/${app.id}/keys`).catch(() => [])
+        );
+        const keysResults = await Promise.all(keysPromises);
+        keysResults.forEach(keys => {
+            totalLicenses += keys.length;
+        });
+        document.getElementById("overview-total-licenses").innerText = totalLicenses;
         
-        document.getElementById("stat-total-keys").innerText = keys.length;
-        document.getElementById("stat-total-users").innerText = users.length;
-        document.getElementById("stat-total-vars").innerText = vars.length;
-        document.getElementById("stat-total-files").innerText = files.length;
+        if (currentState.apps.length === 0) {
+            apiListContainer.innerHTML = '<div style="color:var(--text-muted); text-align:center; padding: 40px 0;">Bạn chưa tạo API nào. Hãy nhập tên ở bên phải để tạo API mới!</div>';
+            return;
+        }
+        
+        apiListContainer.innerHTML = '';
+        currentState.apps.forEach(app => {
+            const isSelected = app.id === currentState.selectedAppId;
+            const card = document.createElement("div");
+            card.className = `api-card ${isSelected ? 'selected' : ''}`;
+            
+            let statusClass = "active";
+            let statusText = "ACTIVE";
+            if (app.banned === 1) {
+                statusClass = "banned";
+                statusText = "BANNED";
+            } else if (app.enabled === 0) {
+                statusClass = "inactive";
+                statusText = "PAUSED";
+            }
+            
+            const pauseBtnLabel = app.enabled === 1 ? "Dừng" : "Kích hoạt";
+            
+            card.innerHTML = `
+                <div class="api-card-header">
+                    <div class="api-card-title-group">
+                        <h2 class="api-card-title">${app.name}</h2>
+                        <span class="api-status-badge ${statusClass}">${statusText}</span>
+                    </div>
+                    <div class="api-card-actions">
+                        <button class="api-action-btn" onclick="event.stopPropagation(); selectApi('${app.id}'); switchTab('settings');">
+                            Sửa
+                        </button>
+                        <button class="api-action-btn" onclick="event.stopPropagation(); toggleApiStatus('${app.id}', ${app.enabled})">
+                            ${pauseBtnLabel}
+                        </button>
+                        <button class="api-action-btn danger" onclick="event.stopPropagation(); deleteApi('${app.id}')">
+                            Xóa
+                        </button>
+                    </div>
+                </div>
+                <p class="api-card-desc">Application Credentials - Simply replace the placeholder code in the example with these</p>
+                <div class="api-card-fields">
+                    <div class="input-group">
+                        <label>APPLICATION NAME</label>
+                        <div class="copy-input">
+                            <input type="text" id="api-name-${app.id}" value="${app.name}" readonly/>
+                            <button onclick="event.stopPropagation(); copyToClipboard('api-name-${app.id}', 'Đã copy Tên API')">
+                                <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>ACCOUNT OWNER ID</label>
+                        <div class="copy-input">
+                            <input type="text" id="api-owner-${app.id}" value="${app.owner_id}" readonly/>
+                            <button onclick="event.stopPropagation(); copyToClipboard('api-owner-${app.id}', 'Đã copy Owner ID')">
+                                <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>APPLICATION SECRET</label>
+                        <div class="copy-input">
+                            <input type="password" id="api-secret-${app.id}" value="${app.secret}" readonly/>
+                            <button onclick="event.stopPropagation(); togglePasswordVisibility('api-secret-${app.id}')">Show</button>
+                            <button onclick="event.stopPropagation(); copyToClipboard('api-secret-${app.id}', 'Đã copy App Secret')">
+                                <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>APPLICATION VERSION</label>
+                        <div class="copy-input">
+                            <input type="text" id="api-version-${app.id}" value="${app.version}" readonly/>
+                            <button onclick="event.stopPropagation(); copyToClipboard('api-version-${app.id}', 'Đã copy Version')">
+                                <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            card.addEventListener("click", () => {
+                selectApi(app.id);
+            });
+            
+            apiListContainer.appendChild(card);
+        });
     } catch (e) {
-        console.error("Failed to load statistics: ", e);
+        apiListContainer.innerHTML = '<div style="color:var(--color-danger);">Không thể tải thông tin chi tiết API.</div>';
+    }
+}
+
+function selectApi(appId) {
+    currentState.selectedAppId = appId;
+    localStorage.setItem("f8auth_selected_appid", appId);
+    
+    const select = document.getElementById("dashboard-app-select");
+    if (select) select.value = appId;
+    
+    const activeApp = currentState.apps.find(a => a.id === appId);
+    renderOverview(activeApp);
+}
+
+async function handleCreateApiSidebar(e) {
+    e.preventDefault();
+    const name = document.getElementById("create-api-name-sidebar").value;
+    try {
+        const app = await apiRequest("/api/developer/apps", "POST", { name });
+        showToast(`Đã tạo API '${name}' thành công!`, "success");
+        e.target.reset();
+        
+        currentState.selectedAppId = app.id;
+        localStorage.setItem("f8auth_selected_appid", app.id);
+        
+        await loadDeveloperApps();
+    } catch (err) {
+        showToast(err.message, "danger");
+    }
+}
+
+async function toggleApiStatus(appId, currentEnabled) {
+    const app = currentState.apps.find(a => a.id === appId);
+    if (!app) return;
+    const newEnabled = currentEnabled === 1 ? 0 : 1;
+    try {
+        await apiRequest(`/api/developer/apps/${appId}/settings`, "POST", {
+            version: app.version,
+            download_url: app.download_url || "",
+            hwid_lock: app.hwid_lock,
+            enabled: newEnabled,
+            banned: app.banned,
+            ban_reason: app.ban_reason || ""
+        });
+        showToast(newEnabled ? "Đã kích hoạt API!" : "Đã tạm dừng API!", "success");
+        await loadDeveloperApps();
+    } catch (err) {
+        showToast(err.message, "danger");
+    }
+}
+
+async function deleteApi(appId) {
+    const app = currentState.apps.find(a => a.id === appId);
+    if (!app) return;
+    if (!confirm(`Bạn có chắc chắn muốn xóa API "${app.name}"? Thao tác này sẽ xóa toàn bộ keys, users, variables, files liên quan!`)) return;
+    try {
+        await apiRequest(`/api/developer/apps/${appId}`, "DELETE");
+        showToast(`Đã xóa API "${app.name}" thành công!`, "info");
+        if (currentState.selectedAppId === appId) {
+            currentState.selectedAppId = null;
+            localStorage.removeItem("f8auth_selected_appid");
+        }
+        await loadDeveloperApps();
+    } catch (err) {
+        showToast(err.message, "danger");
     }
 }
 
@@ -442,7 +576,7 @@ function filterKeysTable() {
     });
 
     if (filtered.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);">Không tìm thấy License Key nào</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);">Không tìm thấy License Key nào</td></tr>';
         return;
     }
 
@@ -458,6 +592,7 @@ function filterKeysTable() {
         // Formatted dates
         const expStr = k.expiry_date ? new Date(k.expiry_date).toLocaleString('vi-VN') : 'Chưa kích hoạt';
         const hwidStr = k.hwid ? k.hwid : '<span style="color:var(--text-muted)">Trống</span>';
+        const durationText = k.duration_days >= 99999 ? "Trọn đời (Lifetime)" : `${k.duration_days} ngày`;
         
         tr.innerHTML = `
             <td>
@@ -465,9 +600,8 @@ function filterKeysTable() {
                     ${k.key_string}
                 </span>
             </td>
-            <td>${k.duration_days} ngày</td>
+            <td>${durationText}</td>
             <td>${expStr}</td>
-            <td>Level ${k.level}</td>
             <td style="font-size:0.75rem; font-family:'JetBrains Mono', monospace;">${hwidStr}</td>
             <td style="color:var(--text-secondary)">${k.note || '-'}</td>
             <td>${statusBadge}</td>
@@ -490,19 +624,23 @@ function copyKeyText(text) {
 async function handleGenerateKeys(e) {
     e.preventDefault();
     const amount = parseInt(document.getElementById("gen-amount").value);
-    const length = parseInt(document.getElementById("gen-length").value);
-    const prefix = document.getElementById("gen-prefix").value;
+    const key_type = document.getElementById("gen-key-type").value;
+    const custom_key = document.getElementById("gen-custom-key") ? document.getElementById("gen-custom-key").value : "";
     const duration_days = parseInt(document.getElementById("gen-duration").value);
     const level = parseInt(document.getElementById("gen-level").value);
     const note = document.getElementById("gen-note").value;
 
+    const length = 7;
+    const prefix = "";
+
     try {
         const res = await apiRequest(`/api/developer/apps/${currentState.selectedAppId}/keys`, "POST", {
-            amount, length, prefix, duration_days, level, note
+            amount, length, prefix, duration_days, level, note, key_type, custom_key
         });
-        showToast(`Đã sinh ${amount} License Key thành công!`, "success");
+        showToast(`Đã tạo ${amount} License Key thành công!`, "success");
         closeModal("modal-generate-keys");
         e.target.reset();
+        toggleKeyTypeInput();
         await renderKeys();
         
         // Download keys as text file option
@@ -514,6 +652,17 @@ async function handleGenerateKeys(e) {
         link.click();
     } catch (err) {
         showToast(err.message, "danger");
+    }
+}
+
+function toggleKeyTypeInput() {
+    const keyType = document.getElementById("gen-key-type").value;
+    const customKeyContainer = document.getElementById("gen-custom-key-container");
+    if (!customKeyContainer) return;
+    if (keyType === "custom") {
+        customKeyContainer.style.display = "block";
+    } else {
+        customKeyContainer.style.display = "none";
     }
 }
 
@@ -573,7 +722,7 @@ function filterUsersTable() {
     });
 
     if (filtered.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);">Không tìm thấy người dùng nào</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);">Không tìm thấy người dùng nào</td></tr>';
         return;
     }
 
@@ -589,11 +738,6 @@ function filterUsersTable() {
             <td style="font-weight:600;">${u.username}</td>
             <td style="font-family:'JetBrains Mono', monospace; font-size:0.82rem; color:#a78bfa;">${u.key_used || '-'}</td>
             <td style="font-size:0.75rem; font-family:'JetBrains Mono', monospace;">${hwidStr}</td>
-            <td>
-                <select onchange="changeUserLevel('${u.id}', this.value)" style="background:rgba(0,0,0,0.2); border:1px solid var(--border-color); color:#fff; border-radius:4px; padding:0.2rem 0.5rem; font-size:0.8rem;">
-                    ${Array.from({length: 10}, (_, i) => i + 1).map(l => `<option value="${l}" ${u.level == l ? 'selected' : ''}>Level ${l}</option>`).join('')}
-                </select>
-            </td>
             <td style="font-size:0.8rem; color:var(--text-secondary);">${regDate}</td>
             <td style="font-size:0.8rem; color:var(--text-secondary);">${loginDate}</td>
             <td>
@@ -747,7 +891,7 @@ async function renderFiles() {
     try {
         const files = await apiRequest(`/api/developer/apps/${currentState.selectedAppId}/files`);
         if (files.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">Không tìm thấy tệp tin an toàn nào</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);">Không tìm thấy tệp tin an toàn nào</td></tr>';
             return;
         }
         
@@ -760,7 +904,6 @@ async function renderFiles() {
                 <td style="font-size:0.8rem; font-family:'JetBrains Mono', monospace;">
                     <a href="${f.file_url}" target="_blank" style="color:#a78bfa; text-decoration:underline;">${f.file_url}</a>
                 </td>
-                <td><span class="badge-status active">Level ${f.level}+</span></td>
                 <td style="text-align:center;">
                     <button class="btn-table-action danger" onclick="deleteFile('${f.id}')">🗑️ Xóa</button>
                 </td>
@@ -864,22 +1007,25 @@ function switchSdkLang(lang) {
     document.querySelectorAll(".sdk-tab").forEach(tab => {
         tab.classList.remove("active");
     });
-    const clickedTab = Array.from(document.querySelectorAll(".sdk-tab")).find(t => t.innerText.toLowerCase().includes(lang === 'python' ? 'python' : 'c++'));
+    const clickedTab = Array.from(document.querySelectorAll(".sdk-tab")).find(t => t.getAttribute("onclick") && t.getAttribute("onclick").includes(lang));
     if (clickedTab) clickedTab.classList.add("active");
     
     // Toggle active code panel
     document.querySelectorAll(".sdk-code-block").forEach(b => {
         b.classList.remove("active");
     });
-    document.getElementById(`sdk-content-${lang}`).classList.add("active");
+    const activeBlock = document.getElementById(`sdk-content-${lang}`);
+    if (activeBlock) activeBlock.classList.add("active");
 }
 
 function renderSdkGuide(app) {
     const pythonCode = document.getElementById("python-code");
     const cppCode = document.getElementById("cpp-code");
+    const csharpCode = document.getElementById("csharp-code");
 
     // Dynamic Python template code
-    pythonCode.textContent = `import requests
+    if (pythonCode) {
+        pythonCode.textContent = `import requests
 import hashlib
 import uuid
 import sys
@@ -953,7 +1099,7 @@ class F8AuthClient:
         r = requests.post(url, json=payload).json()
         if r.get("success"):
             print(f"[+] Đăng nhập thành công! Chào mừng {r['user_data']['username']}")
-            print(f"[+] Cấp độ: {r['user_data']['level']} - Hạn dùng: {r['user_data']['expires']}")
+            print(f"[+] Hạn dùng: {r['user_data']['expires']}")
             return True
         else:
             print(f"[-] Lỗi đăng nhập: {r.get('message')}")
@@ -1010,24 +1156,24 @@ if __name__ == "__main__":
         u = input("Tên đăng nhập: ")
         p = input("Mật khẩu: ")
         if client.login(u, p):
-            # Lấy thử một biến bảo mật tên là 'premium_offset'
-            val = client.get_var("premium_offset")
+            val = client.get_var("demo_variable")
             if val:
-                print(f"[+] Nhận biến bảo mật thành công: premium_offset = {val}")
+                print(f"[+] Nhận biến bảo mật thành công: demo_variable = {val}")
             client.send_log("User logged in and read secret variables")
     elif choice == "3":
         k = input("Nhập License Key: ")
         client.license_only(k)
 `;
+    }
 
     // Dynamic C++ template code
-    cppCode.textContent = `#pragma once
+    if (cppCode) {
+        cppCode.textContent = `#pragma once
 #include <iostream>
 #include <string>
 #include <windows.h>
 #include <winhttp.h>
 
-// Nhắc nhở: Bạn cần liên kết thư viện WinHttp (Thêm #pragma comment(lib, "winhttp.lib"))
 #pragma comment(lib, "winhttp.lib")
 
 namespace F8Auth {
@@ -1040,7 +1186,6 @@ namespace F8Auth {
     const std::string OWNER_ID = "${app.owner_id}";
     const std::string VERSION = "${app.version}";
 
-    // Hàm gọi HTTP POST Request thuần bằng thư viện WinHTTP trên Windows
     std::string SendPostRequest(const std::wstring& path, const std::string& json_payload) {
         std::string response_data = "";
         HINTERNET hSession = WinHttpOpen(L"F8Auth C++ Client/1.0", WINHTTP_ACCESS_TYPE_DEFAULT_PROXY, WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, 0);
@@ -1090,11 +1235,10 @@ namespace F8Auth {
         return response_data;
     }
 
-    // C++ HWID Generator dựa trên ổ cứng hoặc thông tin CPU đơn giản
     std::string GetHWID() {
         HW_PROFILE_INFO hwProfileInfo;
         if (GetCurrentHwProfileA(&hwProfileInfo)) {
-            return std::string(hwProfileInfo.szHwProfileGuid); // Dạng {GUID}
+            return std::string(hwProfileInfo.szHwProfileGuid);
         }
         return "DEFAULT-HWID-FALLBACK";
     }
@@ -1112,12 +1256,10 @@ namespace F8Auth {
             std::string payload = "{\\"name\\": \\"" + APP_NAME + "\\", \\"ownerid\\": \\"" + OWNER_ID + "\\", \\"secret\\": \\"" + APP_SECRET + "\\", \\"version\\": \\"" + VERSION + "\\" }";
             std::string res = SendPostRequest(L"/api/client/init", payload);
             
-            // Một chuỗi parser JSON thô sơ để kiểm tra thành công (Bạn nên tích hợp thư viện nlohmann/json)
             if (res.find("\\"success\\":true") != std::string::npos) {
-                // Parse session id thô sơ
                 size_t pos = res.find("\\"sessionid\\":\\"");
                 if (pos != std::string::npos) {
-                    session_id = res.substr(pos + 13, 16); // Lấy 16 ký tự session ID
+                    session_id = res.substr(pos + 13, 16);
                     std::cout << "[+] Init Successful! Session ID: " << session_id << "\\n";
                     return true;
                 }
@@ -1139,6 +1281,257 @@ namespace F8Auth {
     };
 }
 `;
+    }
+
+    // Dynamic C# template code
+    if (csharpCode) {
+        csharpCode.textContent = `using System;
+using System.Net.Http;
+using System.Text;
+using System.Text.Json;
+using System.Threading.Tasks;
+using System.Security.Cryptography;
+
+namespace F8Auth
+{
+    public class F8AuthClient
+    {
+        private static readonly HttpClient client = new HttpClient();
+        
+        private readonly string apiBase = "${API_BASE}";
+        private readonly string appName = "${app.name}";
+        private readonly string appSecret = "${app.secret}";
+        private readonly string ownerId = "${app.owner_id}";
+        private readonly string version = "${app.version}";
+        
+        private string sessionId = null;
+        private string hwid = null;
+
+        public F8AuthClient()
+        {
+            hwid = GetHWID();
+        }
+
+        private string GetHWID()
+        {
+            string raw = Environment.MachineName + Environment.UserName;
+            using (SHA256 sha256 = SHA256.Create())
+            {
+                byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(raw));
+                StringBuilder builder = new StringBuilder();
+                foreach (byte b in bytes)
+                {
+                    builder.Append(b.ToString("x2"));
+                }
+                return builder.ToString();
+            }
+        }
+
+        public async Task<bool> Init()
+        {
+            string url = $"{apiBase}/api/client/init";
+            var payload = new
+            {
+                name = appName,
+                ownerid = ownerId,
+                secret = appSecret,
+                version = version
+            };
+
+            try
+            {
+                string json = JsonSerializer.Serialize(payload);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var response = await client.PostAsync(url, content);
+                string responseString = await response.Content.ReadAsStringAsync();
+                
+                using (JsonDocument doc = JsonDocument.Parse(responseString))
+                {
+                    JsonElement root = doc.RootElement;
+                    if (root.GetProperty("success").GetBoolean())
+                    {
+                        sessionId = root.GetProperty("sessionid").GetString();
+                        Console.WriteLine($"[+] Init Successful! Session ID: {sessionId}");
+                        return true;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"[-] Init Failed: {root.GetProperty("message").GetString()}");
+                        return false;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"[-] Connection failed: {e.Message}");
+                return false;
+            }
+        }
+
+        public async Task<bool> Register(string username, string password, string key)
+        {
+            if (string.IsNullOrEmpty(sessionId)) return false;
+            string url = $"{apiBase}/api/client/register";
+            var payload = new
+            {
+                sessionid = sessionId,
+                username = username,
+                password = password,
+                key = key,
+                hwid = hwid
+            };
+
+            try
+            {
+                string json = JsonSerializer.Serialize(payload);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var response = await client.PostAsync(url, content);
+                string responseString = await response.Content.ReadAsStringAsync();
+                
+                using (JsonDocument doc = JsonDocument.Parse(responseString))
+                {
+                    JsonElement root = doc.RootElement;
+                    Console.WriteLine($"[*] {root.GetProperty("message").GetString()}");
+                    return root.GetProperty("success").GetBoolean();
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"[-] Registration failed: {e.Message}");
+                return false;
+            }
+        }
+
+        public async Task<bool> Login(string username, string password)
+        {
+            if (string.IsNullOrEmpty(sessionId)) return false;
+            string url = $"{apiBase}/api/client/login";
+            var payload = new
+            {
+                sessionid = sessionId,
+                username = username,
+                password = password,
+                hwid = hwid
+            };
+
+            try
+            {
+                string json = JsonSerializer.Serialize(payload);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var response = await client.PostAsync(url, content);
+                string responseString = await response.Content.ReadAsStringAsync();
+                
+                using (JsonDocument doc = JsonDocument.Parse(responseString))
+                {
+                    JsonElement root = doc.RootElement;
+                    if (root.GetProperty("success").GetBoolean())
+                    {
+                        JsonElement userData = root.GetProperty("user_data");
+                        Console.WriteLine($"[+] Login Successful! Welcome {userData.GetProperty("username").GetString()}");
+                        Console.WriteLine($"[+] Expires: {userData.GetProperty("expires").GetString()}");
+                        return true;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"[-] Login Failed: {root.GetProperty("message").GetString()}");
+                        return false;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"[-] Login failed: {e.Message}");
+                return false;
+            }
+        }
+
+        public async Task<bool> LicenseOnly(string key)
+        {
+            if (string.IsNullOrEmpty(sessionId)) return false;
+            string url = $"{apiBase}/api/client/license";
+            var payload = new
+            {
+                sessionid = sessionId,
+                key = key,
+                hwid = hwid
+            };
+
+            try
+            {
+                string json = JsonSerializer.Serialize(payload);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var response = await client.PostAsync(url, content);
+                string responseString = await response.Content.ReadAsStringAsync();
+                
+                using (JsonDocument doc = JsonDocument.Parse(responseString))
+                {
+                    JsonElement root = doc.RootElement;
+                    if (root.GetProperty("success").GetBoolean())
+                    {
+                        JsonElement userData = root.GetProperty("user_data");
+                        Console.WriteLine("[+] Key Authenticated Successfully!");
+                        Console.WriteLine($"[+] Expires: {userData.GetProperty("expires").GetString()}");
+                        return true;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"[-] Key Validation Failed: {root.GetProperty("message").GetString()}");
+                        return false;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"[-] Key verification failed: {e.Message}");
+                return false;
+            }
+        }
+
+        public async Task<string> GetVar(string name)
+        {
+            if (string.IsNullOrEmpty(sessionId)) return null;
+            string url = $"{apiBase}/api/client/var";
+            var payload = new { sessionid = sessionId, name = name };
+
+            try
+            {
+                string json = JsonSerializer.Serialize(payload);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var response = await client.PostAsync(url, content);
+                string responseString = await response.Content.ReadAsStringAsync();
+                
+                using (JsonDocument doc = JsonDocument.Parse(responseString))
+                {
+                    JsonElement root = doc.RootElement;
+                    if (root.GetProperty("success").GetBoolean())
+                    {
+                        return root.GetProperty("value").GetString();
+                    }
+                    return null;
+                }
+            }
+            catch { return null; }
+        }
+
+        public async Task SendLog(string msg)
+        {
+            if (string.IsNullOrEmpty(sessionId)) return;
+            string url = $"{apiBase}/api/client/log";
+            var payload = new { sessionid = sessionId, message = msg };
+
+            try
+            {
+                string json = JsonSerializer.Serialize(payload);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                await client.PostAsync(url, content);
+            }
+            catch { }
+        }
+    }
+}
+`;
+    }
+}
 }
 
 function copySdkCode(elementId) {

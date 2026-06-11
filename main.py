@@ -101,11 +101,14 @@ class AppSettingsUpdate(BaseModel):
 
 class KeysGenerate(BaseModel):
     amount: int = Field(1, ge=1, le=100)
-    length: int = Field(16, ge=8, le=32)
+    length: int = Field(16, ge=2, le=32)
     prefix: str = Field("", max_length=10)
-    duration_days: int = Field(30, ge=1, le=3650)
+    duration_days: int = Field(30, ge=1, le=99999)
     level: int = Field(1, ge=1, le=100)
     note: str = Field("", max_length=100)
+    key_type: Optional[str] = Field("random", max_length=20)
+    custom_key: Optional[str] = Field("", max_length=50)
+
 
 class UserCreate(BaseModel):
     username: str = Field(..., min_length=3, max_length=50)
@@ -180,6 +183,17 @@ def register_developer(data: DevRegister):
     result = db.create_developer(data.username, pwd_hash, data.email)
     if not result:
         raise HTTPException(status_code=400, detail="Username already exists")
+    
+    # Auto-create a default API for the new user
+    try:
+        secret = uuid.uuid4().hex
+        default_app_name = f"Default API - {data.username}"
+        app_record = db.create_application(default_app_name, secret, result["id"])
+        if app_record:
+            db.create_log(app_record["id"], "App Created", f"Default application '{default_app_name}' was created automatically.", "127.0.0.1")
+    except Exception:
+        pass # Fallback in case of unique constraint or database errors
+        
     return {"message": "Registration successful", "user": result}
 
 @app.post("/api/auth/login")
@@ -209,14 +223,28 @@ def login_developer(data: DevLogin):
 def _oauth_create_session(username: str, email: str):
     """Helper: find or create developer from OAuth info, return session token."""
     dev = db.get_developer_by_username(username)
+    created_new = False
     if not dev:
         pwd_hash = hash_password(uuid.uuid4().hex)
         dev = db.create_developer(username, pwd_hash, email)
         if not dev:
             raise HTTPException(status_code=400, detail="Failed to create OAuth account")
+        created_new = True
     token = uuid.uuid4().hex + uuid.uuid4().hex
     expires_at = datetime.now() + timedelta(days=7)
     db.create_dev_session(dev["id"], token, expires_at)
+    
+    if created_new:
+        # Auto-create a default API for the new OAuth user
+        try:
+            secret = uuid.uuid4().hex
+            default_app_name = f"Default API - {username}"
+            app_record = db.create_application(default_app_name, secret, dev["id"])
+            if app_record:
+                db.create_log(app_record["id"], "App Created", f"Default application '{default_app_name}' was created automatically.", "127.0.0.1")
+        except Exception:
+            pass # Fallback in case of unique constraint or database errors
+            
     return token, dev["username"]
 
 def _oauth_callback_html(token: str, username: str, error: str = ""):
@@ -434,7 +462,6 @@ def get_app_keys(app_id: str, dev = Depends(get_current_developer)):
     if not app_record or app_record["owner_id"] != dev["id"]:
         raise HTTPException(status_code=404, detail="Application not found")
     return db.get_keys(app_id)
-
 @app.post("/api/developer/apps/{app_id}/keys")
 def generate_app_keys(app_id: str, data: KeysGenerate, dev = Depends(get_current_developer)):
     app_record = db.get_application_by_id(app_id)
@@ -446,10 +473,16 @@ def generate_app_keys(app_id: str, data: KeysGenerate, dev = Depends(get_current
     import string
     
     chars = string.ascii_uppercase + string.digits
-    for _ in range(data.amount):
-        # Generate random key
-        random_part = "".join(random.choice(chars) for _ in range(data.length))
-        key_str = f"{data.prefix}{random_part}"
+    for i in range(data.amount):
+        if data.key_type == "custom" and data.custom_key:
+            if data.amount > 1:
+                key_str = f"{data.custom_key}_{i+1}"
+            else:
+                key_str = data.custom_key
+        else:
+            random_part = "".join(random.choice(chars) for _ in range(data.length))
+            key_str = f"{data.prefix}{random_part}"
+            
         keys_list.append({
             "key_string": key_str,
             "duration_days": data.duration_days,
@@ -824,8 +857,11 @@ def client_login(data: ClientLogin, request: Request):
     expiry_str = "Lifetime"
     if key_used and key_used != "Created by Dev":
         key_record = db.get_key_by_string(key_used)
-        if key_record and key_record["expiry_date"]:
-            expiry_str = key_record["expiry_date"]
+        if key_record:
+            if key_record["duration_days"] >= 99999:
+                expiry_str = "Lifetime"
+            elif key_record["expiry_date"]:
+                expiry_str = key_record["expiry_date"]
             
     db.create_log(app_id, "User Login", f"User '{data.username}' logged in successfully", ip)
     
@@ -897,7 +933,7 @@ def client_license(data: ClientLicense, request: Request):
             "username": f"key_{data.key[:8]}",
             "level": key_record["level"],
             "created_at": key_record["created_at"],
-            "expires": key_record["expiry_date"]
+            "expires": "Lifetime" if key_record["duration_days"] >= 99999 else key_record["expiry_date"]
         }
     }
 
