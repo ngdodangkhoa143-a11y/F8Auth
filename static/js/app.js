@@ -1222,56 +1222,42 @@ function togglePasswordVisibility(elementId) {
     }
 }
 
-// ==================== SIMULATED OAuth LOGINS ====================
+// ==================== REAL OAuth LOGINS (Popup Flow) ====================
+let oauthPopup = null;
+
 function openOAuthModal(provider) {
-    if (provider === 'google') {
-        const customInput = document.getElementById("google-custom-email");
-        if (customInput) customInput.value = '';
-        openModal('modal-google-oauth');
-    } else if (provider === 'discord') {
-        openModal('modal-discord-oauth');
+    const url = provider === 'google' 
+        ? '/api/auth/google/redirect' 
+        : '/api/auth/discord/redirect';
+    
+    // Open popup window centered on screen
+    const w = 500, h = 650;
+    const left = (screen.width - w) / 2;
+    const top = (screen.height - h) / 2;
+    oauthPopup = window.open(url, 'F8Auth OAuth', `width=${w},height=${h},left=${left},top=${top},toolbar=no,menubar=no,scrollbars=yes`);
+    
+    if (!oauthPopup) {
+        showToast("Popup bị chặn! Hãy cho phép popup trong trình duyệt.", "danger");
     }
 }
 
-async function triggerMockOAuth(provider, email, username) {
-    const modalId = provider === 'google' ? 'modal-google-oauth' : 'modal-discord-oauth';
-    const modal = document.getElementById(modalId);
-    if (!modal) return;
+// Listen for OAuth callback postMessage from popup
+window.addEventListener('message', async function(event) {
+    if (!event.data || event.data.type !== 'f8auth_oauth') return;
     
-    const body = modal.querySelector('.modal-content');
-    const originalContent = body.innerHTML;
+    if (event.data.error) {
+        showToast("OAuth failed: " + event.data.error, "danger");
+        return;
+    }
     
-    body.innerHTML = `
-        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding: 50px 0; gap:20px; text-align:center;">
-            <div class="spinner" style="width:36px; height:36px; border-width:3px; border-top-color:var(--accent-secondary);"></div>
-            <div style="font-weight:600; font-size:1rem; color:#fff;">Authenticating with ${provider === 'google' ? 'Google' : 'Discord'}...</div>
-            <div style="font-size:0.85rem; color:var(--text-secondary);">Redirecting and creating secure developer session...</div>
-        </div>
-    `;
-    
-    try {
-        const res = await apiRequest("/api/auth/oauth-login", "POST", { provider, email, username }, false);
-        localStorage.setItem("f8auth_token", res.token);
-        currentState.token = res.token;
+    if (event.data.token) {
+        localStorage.setItem("f8auth_token", event.data.token);
+        currentState.token = event.data.token;
         showToast("Đăng nhập thành công qua OAuth!", "success");
-        
-        // Restore content
-        body.innerHTML = originalContent;
-        closeModal(modalId);
         
         await fetchDeveloperProfile();
         showView("view-dashboard");
         await loadDeveloperApps();
-    } catch (err) {
-        showToast(err.message, "danger");
-        body.innerHTML = originalContent;
     }
-}
+});
 
-async function submitCustomGoogleOAuth(e) {
-    e.preventDefault();
-    const email = document.getElementById("google-custom-email").value;
-    if (!email) return;
-    const username = email.split('@')[0] + "_google";
-    await triggerMockOAuth('google', email, username);
-}

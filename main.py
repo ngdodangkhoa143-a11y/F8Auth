@@ -1,6 +1,6 @@
 import uvicorn
 from fastapi import FastAPI, Depends, HTTPException, Request, Header, status
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
@@ -8,6 +8,8 @@ from typing import List, Optional
 import hashlib
 import uuid
 import os
+import requests as http_requests
+import urllib.parse
 from datetime import datetime, timedelta
 
 import database as db
@@ -35,6 +37,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ==================== OAUTH CONFIG ====================
+GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
+GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", "")
+DISCORD_CLIENT_ID = os.environ.get("DISCORD_CLIENT_ID", "")
+DISCORD_CLIENT_SECRET = os.environ.get("DISCORD_CLIENT_SECRET", "")
 
 # Mount static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -196,27 +204,163 @@ def login_developer(data: DevLogin):
         "id": dev["id"]
     }
 
-@app.post("/api/auth/oauth-login")
-def oauth_login_developer(data: OAuthLoginRequest):
-    dev = db.get_developer_by_username(data.username)
+# ==================== REAL OAUTH ENDPOINTS ====================
+
+def _oauth_create_session(username: str, email: str):
+    """Helper: find or create developer from OAuth info, return session token."""
+    dev = db.get_developer_by_username(username)
     if not dev:
-        # Create a new developer account dynamically
-        pwd_hash = hash_password(uuid.uuid4().hex) # random hash password
-        dev = db.create_developer(data.username, pwd_hash, data.email)
+        pwd_hash = hash_password(uuid.uuid4().hex)
+        dev = db.create_developer(username, pwd_hash, email)
         if not dev:
             raise HTTPException(status_code=400, detail="Failed to create OAuth account")
-    
-    # Generate token
     token = uuid.uuid4().hex + uuid.uuid4().hex
     expires_at = datetime.now() + timedelta(days=7)
     db.create_dev_session(dev["id"], token, expires_at)
+    return token, dev["username"]
+
+def _oauth_callback_html(token: str, username: str, error: str = ""):
+    """Return an HTML page that posts the OAuth result to the opener window and closes."""
+    if error:
+        return HTMLResponse(f"""
+<!DOCTYPE html><html><head><title>OAuth Error</title></head><body>
+<script>
+  if (window.opener) {{
+    window.opener.postMessage({{ type:'f8auth_oauth', error: "{error}" }}, '*');
+  }}
+  window.close();
+</script>
+<p>OAuth failed: {error}. This window will close automatically.</p>
+</body></html>""")
+    return HTMLResponse(f"""
+<!DOCTYPE html><html><head><title>OAuth Success</title></head><body>
+<script>
+  if (window.opener) {{
+    window.opener.postMessage({{ type:'f8auth_oauth', token: "{token}", username: "{username}" }}, '*');
+  }}
+  window.close();
+</script>
+<p>Login successful! This window will close automatically.</p>
+</body></html>""")
+
+# ---- GOOGLE OAUTH ----
+@app.get("/api/auth/google/redirect")
+def google_oauth_redirect(request: Request):
+    if not GOOGLE_CLIENT_ID:
+        raise HTTPException(status_code=500, detail="Google OAuth is not configured. Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET environment variables.")
     
-    return {
-        "message": "OAuth Login successful",
-        "token": token,
-        "username": dev["username"],
-        "id": dev["id"]
-    }
+    # Build callback URL dynamically from the request
+    callback_url = str(request.base_url).rstrip('/') + "/api/auth/google/callback"
+    
+    params = urllib.parse.urlencode({
+        "client_id": GOOGLE_CLIENT_ID,
+        "redirect_uri": callback_url,
+        "response_type": "code",
+        "scope": "openid email profile",
+        "access_type": "offline",
+        "prompt": "select_account",
+    })
+    return RedirectResponse(url=f"https://accounts.google.com/o/oauth2/v2/auth?{params}")
+
+@app.get("/api/auth/google/callback")
+def google_oauth_callback(request: Request, code: str = "", error: str = ""):
+    if error or not code:
+        return _oauth_callback_html("", "", error or "No authorization code received")
+    
+    callback_url = str(request.base_url).rstrip('/') + "/api/auth/google/callback"
+    
+    try:
+        # Exchange code for tokens
+        token_resp = http_requests.post("https://oauth2.googleapis.com/token", data={
+            "code": code,
+            "client_id": GOOGLE_CLIENT_ID,
+            "client_secret": GOOGLE_CLIENT_SECRET,
+            "redirect_uri": callback_url,
+            "grant_type": "authorization_code",
+        }, timeout=10)
+        token_data = token_resp.json()
+        
+        if "access_token" not in token_data:
+            return _oauth_callback_html("", "", token_data.get("error_description", "Token exchange failed"))
+        
+        # Fetch user info from Google
+        userinfo_resp = http_requests.get("https://www.googleapis.com/oauth2/v2/userinfo", headers={
+            "Authorization": f"Bearer {token_data['access_token']}"
+        }, timeout=10)
+        userinfo = userinfo_resp.json()
+        
+        email = userinfo.get("email", "")
+        name = userinfo.get("name", "")
+        # Use email prefix as username (sanitized)
+        username = email.split("@")[0].replace(".", "").replace("+", "") if email else name.replace(" ", "_").lower()
+        if not username:
+            username = f"google_{uuid.uuid4().hex[:8]}"
+        
+        session_token, dev_username = _oauth_create_session(username, email)
+        return _oauth_callback_html(session_token, dev_username)
+        
+    except Exception as e:
+        return _oauth_callback_html("", "", str(e))
+
+# ---- DISCORD OAUTH ----
+@app.get("/api/auth/discord/redirect")
+def discord_oauth_redirect(request: Request):
+    if not DISCORD_CLIENT_ID:
+        raise HTTPException(status_code=500, detail="Discord OAuth is not configured. Set DISCORD_CLIENT_ID and DISCORD_CLIENT_SECRET environment variables.")
+    
+    callback_url = str(request.base_url).rstrip('/') + "/api/auth/discord/callback"
+    
+    params = urllib.parse.urlencode({
+        "client_id": DISCORD_CLIENT_ID,
+        "redirect_uri": callback_url,
+        "response_type": "code",
+        "scope": "identify email",
+    })
+    return RedirectResponse(url=f"https://discord.com/oauth2/authorize?{params}")
+
+@app.get("/api/auth/discord/callback")
+def discord_oauth_callback(request: Request, code: str = "", error: str = ""):
+    if error or not code:
+        return _oauth_callback_html("", "", error or "No authorization code received")
+    
+    callback_url = str(request.base_url).rstrip('/') + "/api/auth/discord/callback"
+    
+    try:
+        # Exchange code for tokens
+        token_resp = http_requests.post("https://discord.com/api/oauth2/token", data={
+            "code": code,
+            "client_id": DISCORD_CLIENT_ID,
+            "client_secret": DISCORD_CLIENT_SECRET,
+            "redirect_uri": callback_url,
+            "grant_type": "authorization_code",
+        }, headers={"Content-Type": "application/x-www-form-urlencoded"}, timeout=10)
+        token_data = token_resp.json()
+        
+        if "access_token" not in token_data:
+            return _oauth_callback_html("", "", token_data.get("error_description", "Token exchange failed"))
+        
+        # Fetch user info from Discord
+        userinfo_resp = http_requests.get("https://discord.com/api/v10/users/@me", headers={
+            "Authorization": f"Bearer {token_data['access_token']}"
+        }, timeout=10)
+        userinfo = userinfo_resp.json()
+        
+        username = userinfo.get("username", "")
+        email = userinfo.get("email", "") or f"{username}@discord.user"
+        if not username:
+            username = f"discord_{uuid.uuid4().hex[:8]}"
+        
+        session_token, dev_username = _oauth_create_session(username, email)
+        return _oauth_callback_html(session_token, dev_username)
+        
+    except Exception as e:
+        return _oauth_callback_html("", "", str(e))
+
+# Keep legacy endpoint for backwards compatibility
+@app.post("/api/auth/oauth-login")
+def oauth_login_developer(data: OAuthLoginRequest):
+    token, username = _oauth_create_session(data.username, data.email)
+    return {"message": "OAuth Login successful", "token": token, "username": username}
 
 @app.get("/api/auth/me")
 def get_me(dev = Depends(get_current_developer)):
