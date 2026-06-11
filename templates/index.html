@@ -8,11 +8,16 @@
     <link rel="preconnect" href="https://fonts.googleapis.com"/>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-    <link rel="stylesheet" href="/static/css/styles.css"/>
+    <link rel="stylesheet" href="/static/css/styles.css?v=4"/>
 </head>
 <body>
     <!-- Three.js Interactive Background Canvas -->
     <canvas id="three-canvas"></canvas>
+
+    <!-- Ambient Blur Glow Backdrops -->
+    <div class="ambient-glow ambient-glow-1"></div>
+    <div class="ambient-glow ambient-glow-2"></div>
+    <div class="ambient-glow ambient-glow-3"></div>
 
     <!-- Global Toast Notifications -->
     <div id="toast-container" class="toast-container"></div>
@@ -723,7 +728,7 @@
     <!-- SCRIPTS -->
     <!-- Three.js CDN - optional background effect, if it fails the app still works -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" onerror="console.warn('Three.js CDN failed to load')"></script>
-    <script src="/static/js/three-bg.js?v=3"></script>
-    <script src="/static/js/app.js?v=3"></script>
+    <script src="/static/js/three-bg.js?v=4"></script>
+    <script src="/static/js/app.js?v=4"></script>
 </body>
 </html>
