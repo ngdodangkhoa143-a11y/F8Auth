@@ -1221,3 +1221,57 @@ function togglePasswordVisibility(elementId) {
         if (btn) btn.innerText = "Show";
     }
 }
+
+// ==================== SIMULATED OAuth LOGINS ====================
+function openOAuthModal(provider) {
+    if (provider === 'google') {
+        const customInput = document.getElementById("google-custom-email");
+        if (customInput) customInput.value = '';
+        openModal('modal-google-oauth');
+    } else if (provider === 'discord') {
+        openModal('modal-discord-oauth');
+    }
+}
+
+async function triggerMockOAuth(provider, email, username) {
+    const modalId = provider === 'google' ? 'modal-google-oauth' : 'modal-discord-oauth';
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+    
+    const body = modal.querySelector('.modal-content');
+    const originalContent = body.innerHTML;
+    
+    body.innerHTML = `
+        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding: 50px 0; gap:20px; text-align:center;">
+            <div class="spinner" style="width:36px; height:36px; border-width:3px; border-top-color:var(--accent-secondary);"></div>
+            <div style="font-weight:600; font-size:1rem; color:#fff;">Authenticating with ${provider === 'google' ? 'Google' : 'Discord'}...</div>
+            <div style="font-size:0.85rem; color:var(--text-secondary);">Redirecting and creating secure developer session...</div>
+        </div>
+    `;
+    
+    try {
+        const res = await apiRequest("/api/auth/oauth-login", "POST", { provider, email, username }, false);
+        localStorage.setItem("f8auth_token", res.token);
+        currentState.token = res.token;
+        showToast("Đăng nhập thành công qua OAuth!", "success");
+        
+        // Restore content
+        body.innerHTML = originalContent;
+        closeModal(modalId);
+        
+        await fetchDeveloperProfile();
+        showView("view-dashboard");
+        await loadDeveloperApps();
+    } catch (err) {
+        showToast(err.message, "danger");
+        body.innerHTML = originalContent;
+    }
+}
+
+async function submitCustomGoogleOAuth(e) {
+    e.preventDefault();
+    const email = document.getElementById("google-custom-email").value;
+    if (!email) return;
+    const username = email.split('@')[0] + "_google";
+    await triggerMockOAuth('google', email, username);
+}

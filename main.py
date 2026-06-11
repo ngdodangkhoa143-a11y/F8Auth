@@ -75,6 +75,11 @@ class DevLogin(BaseModel):
     username: str
     password: str
 
+class OAuthLoginRequest(BaseModel):
+    provider: str
+    email: str
+    username: str
+
 class AppCreate(BaseModel):
     name: str = Field(..., min_length=3, max_length=50)
 
@@ -186,6 +191,28 @@ def login_developer(data: DevLogin):
     
     return {
         "message": "Login successful",
+        "token": token,
+        "username": dev["username"],
+        "id": dev["id"]
+    }
+
+@app.post("/api/auth/oauth-login")
+def oauth_login_developer(data: OAuthLoginRequest):
+    dev = db.get_developer_by_username(data.username)
+    if not dev:
+        # Create a new developer account dynamically
+        pwd_hash = hash_password(uuid.uuid4().hex) # random hash password
+        dev = db.create_developer(data.username, pwd_hash, data.email)
+        if not dev:
+            raise HTTPException(status_code=400, detail="Failed to create OAuth account")
+    
+    # Generate token
+    token = uuid.uuid4().hex + uuid.uuid4().hex
+    expires_at = datetime.now() + timedelta(days=7)
+    db.create_dev_session(dev["id"], token, expires_at)
+    
+    return {
+        "message": "OAuth Login successful",
         "token": token,
         "username": dev["username"],
         "id": dev["id"]
