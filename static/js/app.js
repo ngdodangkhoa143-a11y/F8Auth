@@ -1532,7 +1532,6 @@ namespace F8Auth
 `;
     }
 }
-}
 
 function copySdkCode(elementId) {
     copyToClipboard(elementId, "Đã copy SDK Code vào clipboard");
