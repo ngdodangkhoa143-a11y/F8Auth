@@ -58,8 +58,13 @@ body {
     width: 100vw;
     height: 100vh;
     z-index: -100;
-    pointer-events: none;
+    pointer-events: none !important;
     background-color: var(--bg-color);
+}
+
+#app {
+    position: relative;
+    z-index: 1;
 }
 
 /* Custom Scrollbars */

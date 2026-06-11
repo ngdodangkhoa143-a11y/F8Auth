@@ -570,7 +570,7 @@ function filterKeysTable() {
     const tbody = document.getElementById("keys-table-body");
     
     const filtered = loadedKeys.filter(k => {
-        const matchesQuery = k.key_string.toLowerCase().includes(query) || k.note.toLowerCase().includes(query);
+        const matchesQuery = k.key_string.toLowerCase().includes(query) || (k.note || '').toLowerCase().includes(query);
         const matchesStatus = statusFilter === 'all' || k.status === statusFilter;
         return matchesQuery && matchesStatus;
     });

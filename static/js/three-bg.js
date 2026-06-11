@@ -1,5 +1,11 @@
 // ==================== THREE.JS 3D PARTICLE BACKGROUND ====================
 (function() {
+    // Guard: if Three.js library failed to load, exit silently
+    if (typeof THREE === 'undefined') {
+        console.warn('[F8Auth] Three.js library not loaded. Skipping 3D background.');
+        return;
+    }
+
     let scene, camera, renderer, particleSystem;
     let mouseX = 0, mouseY = 0;
     let targetX = 0, targetY = 0;
@@ -8,82 +14,86 @@
     const windowHalfY = window.innerHeight / 2;
 
     function init() {
-        const canvas = document.getElementById('three-canvas');
-        if (!canvas) return;
+        try {
+            const canvas = document.getElementById('three-canvas');
+            if (!canvas) return;
 
-        // Scene
-        scene = new THREE.Scene();
-        // Fog to add depth and fade particles out in the distance
-        scene.fog = new THREE.FogExp2(0x060709, 0.0018);
+            // Scene
+            scene = new THREE.Scene();
+            // Fog to add depth and fade particles out in the distance
+            scene.fog = new THREE.FogExp2(0x060709, 0.0018);
 
-        // Camera
-        camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 10000);
-        camera.position.z = 1000;
+            // Camera
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 10000);
+            camera.position.z = 1000;
 
-        // Particle Geometry
-        const particleCount = 2000;
-        const geometry = new THREE.BufferGeometry();
-        const positions = new Float32Array(particleCount * 3);
-        const colors = new Float32Array(particleCount * 3);
+            // Particle Geometry
+            const particleCount = 2000;
+            const geometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(particleCount * 3);
+            const colors = new Float32Array(particleCount * 3);
 
-        const colorViolet = new THREE.Color('#7c3aed'); // Violet
-        const colorCyan = new THREE.Color('#06b6d4');   // Cyan
-        const tempColor = new THREE.Color();
+            const colorViolet = new THREE.Color('#7c3aed'); // Violet
+            const colorCyan = new THREE.Color('#06b6d4');   // Cyan
+            const tempColor = new THREE.Color();
 
-        for (let i = 0; i < particleCount; i++) {
-            // Distribute points in a sphere/cloud
-            const radius = 800 + Math.random() * 800;
-            const theta = Math.random() * Math.PI * 2;
-            const phi = Math.acos((Math.random() * 2) - 1);
+            for (let i = 0; i < particleCount; i++) {
+                // Distribute points in a sphere/cloud
+                const radius = 800 + Math.random() * 800;
+                const theta = Math.random() * Math.PI * 2;
+                const phi = Math.acos((Math.random() * 2) - 1);
 
-            positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
-            positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
-            positions[i * 3 + 2] = radius * Math.cos(phi);
+                positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
+                positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+                positions[i * 3 + 2] = radius * Math.cos(phi);
 
-            // Interpolate colors between Violet and Cyan
-            const ratio = Math.random();
-            tempColor.copy(colorViolet).lerp(colorCyan, ratio);
+                // Interpolate colors between Violet and Cyan
+                const ratio = Math.random();
+                tempColor.copy(colorViolet).lerp(colorCyan, ratio);
 
-            colors[i * 3] = tempColor.r;
-            colors[i * 3 + 1] = tempColor.g;
-            colors[i * 3 + 2] = tempColor.b;
+                colors[i * 3] = tempColor.r;
+                colors[i * 3 + 1] = tempColor.g;
+                colors[i * 3 + 2] = tempColor.b;
+            }
+
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+            // Create a custom soft particle texture programmatically
+            const texture = createParticleTexture();
+
+            // Points Material
+            const material = new THREE.PointsMaterial({
+                size: 8,
+                map: texture,
+                vertexColors: true,
+                blending: THREE.AdditiveBlending,
+                depthTest: false,
+                transparent: true,
+                opacity: 0.6
+            });
+
+            // Particle System Object
+            particleSystem = new THREE.Points(geometry, material);
+            scene.add(particleSystem);
+
+            // Renderer
+            renderer = new THREE.WebGLRenderer({
+                canvas: canvas,
+                alpha: true,
+                antialias: true
+            });
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
+            // Event Listeners
+            document.addEventListener('mousemove', onDocumentMouseMove);
+            window.addEventListener('resize', onWindowResize);
+
+            animate();
+        } catch(e) {
+            console.warn('[F8Auth] 3D background init failed:', e);
         }
-
-        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-
-        // Create a custom soft particle texture programmatically
-        const texture = createParticleTexture();
-
-        // Points Material
-        const material = new THREE.PointsMaterial({
-            size: 8,
-            map: texture,
-            vertexColors: true,
-            blending: THREE.AdditiveBlending,
-            depthTest: false,
-            transparent: true,
-            opacity: 0.6
-        });
-
-        // Particle System Object
-        particleSystem = new THREE.Points(geometry, material);
-        scene.add(particleSystem);
-
-        // Renderer
-        renderer = new THREE.WebGLRenderer({
-            canvas: canvas,
-            alpha: true,
-            antialias: true
-        });
-        renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.setSize(window.innerWidth, window.innerHeight);
-
-        // Event Listeners
-        document.addEventListener('mousemove', onDocumentMouseMove);
-        window.addEventListener('resize', onWindowResize);
-
-        animate();
     }
 
     // Helper to draw a glowing circle texture so particles look like soft spheres instead of squares
@@ -152,6 +162,10 @@
     // Initialize once page finishes loading
     window.addEventListener('load', () => {
         // Wait briefly to make sure canvas renders
-        setTimeout(init, 100);
+        try {
+            setTimeout(init, 100);
+        } catch(e) {
+            console.warn('[F8Auth] 3D background init failed:', e);
+        }
     });
 })();

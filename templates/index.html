@@ -721,7 +721,8 @@
     </div>
 
     <!-- SCRIPTS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Three.js CDN - optional background effect, if it fails the app still works -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" onerror="console.warn('Three.js CDN failed to load')"></script>
     <script src="/static/js/three-bg.js"></script>
     <script src="/static/js/app.js"></script>
 </body>
