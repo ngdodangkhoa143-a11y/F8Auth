@@ -1791,3 +1791,18 @@ body {
         flex-direction: column;
     }
 }
+
+/* Secret Blur Hover Effect */
+.secret-blur {
+    filter: blur(5.5px) !important;
+    transition: filter 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    user-select: none;
+    cursor: pointer;
+}
+
+.secret-blur:hover,
+.secret-blur:focus,
+.secret-blur:active {
+    filter: none !important;
+    user-select: text;
+}

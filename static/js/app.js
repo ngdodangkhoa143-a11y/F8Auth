@@ -454,8 +454,7 @@ async function renderOverview(currentApp) {
                     <div class="input-group">
                         <label>MÃ BẢO MẬT (APP SECRET)</label>
                         <div class="copy-input">
-                            <input type="password" id="api-secret-${app.id}" value="${app.secret}" readonly/>
-                            <button onclick="event.stopPropagation(); togglePasswordVisibility('api-secret-${app.id}')">Hiện</button>
+                            <input type="text" class="secret-blur" id="api-secret-${app.id}" value="${app.secret}" readonly/>
                             <button onclick="event.stopPropagation(); copyToClipboard('api-secret-${app.id}', 'Đã copy App Secret')">
                                 <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                             </button>
@@ -839,8 +838,7 @@ async function renderVariables() {
                 <td style="font-family:'JetBrains Mono', monospace; font-weight:600; color:#06b6d4;">${v.name}</td>
                 <td>
                     <div class="copy-input">
-                        <input type="password" id="var-val-${v.id}" readonly value="${v.value}">
-                        <button onclick="togglePasswordVisibility('var-val-${v.id}')">Show</button>
+                        <input type="text" class="secret-blur" id="var-val-${v.id}" readonly value="${v.value}">
                         <button onclick="copyToClipboard('var-val-${v.id}', 'Đã copy giá trị biến')">Copy</button>
                     </div>
                 </td>
