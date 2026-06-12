@@ -87,13 +87,33 @@ function scrollToSection(sectionId) {
     if (!element) return;
     
     const headerOffset = 80; // height of landing-header
-    const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
-    const offsetPosition = elementPosition - headerOffset;
+    const targetPosition = element.getBoundingClientRect().top + window.pageYOffset - headerOffset;
+    const startPosition = window.pageYOffset;
+    const distance = targetPosition - startPosition;
+    const duration = 900; // duration in ms (slightly slower for cinematic feel)
+    let start = null;
     
-    window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-    });
+    // Easing function: easeInOutCubic (extremely smooth acceleration/deceleration)
+    function easeInOutCubic(t) {
+        return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    }
+    
+    function step(timestamp) {
+        if (!start) start = timestamp;
+        const elapsed = timestamp - start;
+        const progress = Math.min(elapsed / duration, 1);
+        const ease = easeInOutCubic(progress);
+        
+        window.scrollTo(0, startPosition + distance * ease);
+        
+        if (progress < 1) {
+            window.requestAnimationFrame(step);
+        } else {
+            window.scrollTo(0, targetPosition); // ensure accurate finish
+        }
+    }
+    
+    window.requestAnimationFrame(step);
 }
 
 function toggleFaq(faqItem) {
