@@ -1602,7 +1602,15 @@ namespace F8Auth
 }
 
 function copySdkCode(elementId) {
-    copyToClipboard(elementId, "Đã copy SDK Code vào clipboard");
+    const codeElement = document.getElementById(elementId);
+    if (!codeElement) return;
+    
+    const text = codeElement.textContent || codeElement.innerText;
+    navigator.clipboard.writeText(text).then(() => {
+        showToast("Đã copy toàn bộ mã nguồn SDK!", "success");
+    }).catch(err => {
+        showToast("Không thể copy tự động. Hãy bôi đen để copy thủ công.", "danger");
+    });
 }
 
 // ==================== TAB 8: APP SETTINGS ====================
