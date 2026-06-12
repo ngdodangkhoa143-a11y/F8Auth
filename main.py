@@ -44,6 +44,14 @@ GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", "")
 DISCORD_CLIENT_ID = os.environ.get("DISCORD_CLIENT_ID", "")
 DISCORD_CLIENT_SECRET = os.environ.get("DISCORD_CLIENT_SECRET", "")
 
+def get_callback_url(request: Request, provider: str) -> str:
+    base_url = str(request.base_url).rstrip('/')
+    # Check if we are behind a proxy (like Vercel) which forwards HTTPS as HTTP internally
+    forwarded_proto = request.headers.get("x-forwarded-proto")
+    if forwarded_proto == "https" and base_url.startswith("http://"):
+        base_url = "https://" + base_url[7:]
+    return f"{base_url}/api/auth/{provider}/callback"
+
 # Mount static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
@@ -277,8 +285,8 @@ def google_oauth_redirect(request: Request):
     if not GOOGLE_CLIENT_ID:
         raise HTTPException(status_code=500, detail="Google OAuth is not configured. Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET environment variables.")
     
-    # Build callback URL dynamically from the request
-    callback_url = str(request.base_url).rstrip('/') + "/api/auth/google/callback"
+    # Build callback URL dynamically from the request (handling proxies like Vercel)
+    callback_url = get_callback_url(request, "google")
     
     params = urllib.parse.urlencode({
         "client_id": GOOGLE_CLIENT_ID,
@@ -295,7 +303,7 @@ def google_oauth_callback(request: Request, code: str = "", error: str = ""):
     if error or not code:
         return _oauth_callback_html("", "", error or "No authorization code received")
     
-    callback_url = str(request.base_url).rstrip('/') + "/api/auth/google/callback"
+    callback_url = get_callback_url(request, "google")
     
     try:
         # Exchange code for tokens
@@ -336,7 +344,7 @@ def discord_oauth_redirect(request: Request):
     if not DISCORD_CLIENT_ID:
         raise HTTPException(status_code=500, detail="Discord OAuth is not configured. Set DISCORD_CLIENT_ID and DISCORD_CLIENT_SECRET environment variables.")
     
-    callback_url = str(request.base_url).rstrip('/') + "/api/auth/discord/callback"
+    callback_url = get_callback_url(request, "discord")
     
     params = urllib.parse.urlencode({
         "client_id": DISCORD_CLIENT_ID,
@@ -351,7 +359,7 @@ def discord_oauth_callback(request: Request, code: str = "", error: str = ""):
     if error or not code:
         return _oauth_callback_html("", "", error or "No authorization code received")
     
-    callback_url = str(request.base_url).rstrip('/') + "/api/auth/discord/callback"
+    callback_url = get_callback_url(request, "discord")
     
     try:
         # Exchange code for tokens
