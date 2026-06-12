@@ -1806,3 +1806,436 @@ body {
     filter: none !important;
     user-select: text;
 }
+
+/* ==================== 1.2 LANDING PERFORMANCE SECTION ==================== */
+.landing-performance {
+    padding: 100px 8% 120px 8%;
+    background: rgba(5, 5, 12, 0.4);
+    border-top: 1px solid rgba(255, 255, 255, 0.03);
+    position: relative;
+    overflow: hidden;
+}
+
+.perf-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+@media (max-width: 968px) {
+    .perf-container {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+}
+
+.perf-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.perf-text h2 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    margin-bottom: 20px;
+    letter-spacing: -0.8px;
+    line-height: 1.25;
+}
+
+.perf-text p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.65;
+    margin-bottom: 35px;
+}
+
+.perf-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.metric-item {
+    background: rgba(255, 255, 255, 0.015);
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    padding: 20px 16px;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.metric-value {
+    font-size: 1.75rem;
+    font-family: var(--font-mono);
+    background: var(--accent-gradient-text);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 800;
+    margin-bottom: 6px;
+}
+
+.metric-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.perf-visual {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.visual-card {
+    background: rgba(10, 11, 25, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: var(--shadow-main);
+    backdrop-filter: blur(20px);
+    overflow: hidden;
+}
+
+.visual-header {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 14px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.visual-title {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.pulse-dot {
+    width: 8px;
+    height: 8px;
+    background-color: var(--color-success);
+    border-radius: 50%;
+    display: inline-block;
+    box-shadow: 0 0 10px var(--color-success);
+    animation: pulseGlow 1.5s infinite alternate;
+}
+
+@keyframes pulseGlow {
+    0% { opacity: 0.4; }
+    100% { opacity: 1; }
+}
+
+.visual-body {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.chart-bar-container {
+    height: 120px;
+    position: relative;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    margin-bottom: 8px;
+}
+
+.chart-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    border-top: 1px dashed rgba(255, 255, 255, 0.15);
+}
+
+.chart-bars {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-end;
+    height: 100%;
+    padding-bottom: 1px;
+}
+
+.chart-bars .bar {
+    width: 16px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 4px 4px 0 0;
+    transition: background-color 0.3s ease;
+}
+
+.chart-bars .bar.active {
+    background: var(--accent-gradient);
+    box-shadow: 0 0 15px rgba(95, 85, 250, 0.3);
+}
+
+.stat-detail {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.82rem;
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    padding-bottom: 8px;
+}
+
+.stat-detail:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+/* ==================== 1.3 LANDING HOW IT WORKS SECTION ==================== */
+.landing-how-it-works {
+    padding: 100px 8% 120px 8%;
+    background: rgba(4, 4, 8, 0.35);
+    border-top: 1px solid rgba(255, 255, 255, 0.03);
+    position: relative;
+}
+
+.steps-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+    .steps-container {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+}
+
+.step-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    padding: 40px 32px;
+    border-radius: 16px;
+    backdrop-filter: blur(20px);
+    transition: var(--transition-smooth);
+    text-align: center;
+    position: relative;
+}
+
+.step-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(6, 182, 212, 0.25);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), 0 0 20px rgba(6, 182, 212, 0.08);
+}
+
+.step-num {
+    width: 48px;
+    height: 48px;
+    background: var(--accent-gradient);
+    border-radius: 50%;
+    color: #fff;
+    font-size: 1.25rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px auto;
+    box-shadow: var(--shadow-glow);
+}
+
+.step-card h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 14px;
+    color: #fff;
+}
+
+.step-card p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+/* ==================== 1.4 LANDING SDK PREVIEW SECTION ==================== */
+.landing-sdk-preview {
+    padding: 100px 8% 120px 8%;
+    background: rgba(5, 5, 12, 0.4);
+    border-top: 1px solid rgba(255, 255, 255, 0.03);
+    position: relative;
+}
+
+.sdk-preview-header {
+    text-align: center;
+    max-width: 650px;
+    margin: 0 auto 50px auto;
+}
+
+.sdk-preview-header h2 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    margin-bottom: 16px;
+    letter-spacing: -0.8px;
+}
+
+.sdk-preview-header p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.sdk-preview-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: #020308;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow-main);
+}
+
+.sdk-preview-tabs {
+    display: flex;
+    background: rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.sdk-preview-tab {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    padding: 16px 28px;
+    font-family: var(--font-sans);
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.88rem;
+    transition: var(--transition-smooth);
+    border-bottom: 2px solid transparent;
+}
+
+.sdk-preview-tab:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.015);
+}
+
+.sdk-preview-tab.active {
+    color: var(--accent-secondary);
+    border-bottom-color: var(--accent-secondary);
+    background: rgba(6, 182, 212, 0.03);
+}
+
+.sdk-preview-content {
+    padding: 24px;
+    background: #020308;
+}
+
+.sdk-preview-pane {
+    display: none;
+}
+
+.sdk-preview-pane.active {
+    display: block;
+}
+
+.sdk-preview-pane pre {
+    margin: 0;
+    overflow-x: auto;
+}
+
+.sdk-preview-pane code {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: #e2e8f0;
+    line-height: 1.5;
+}
+
+/* ==================== 1.5 LANDING FAQ SECTION ==================== */
+.landing-faq {
+    padding: 100px 8% 140px 8%;
+    background: rgba(4, 4, 8, 0.35);
+    border-top: 1px solid rgba(255, 255, 255, 0.03);
+    position: relative;
+}
+
+.faq-container {
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.faq-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    backdrop-filter: blur(20px);
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    overflow: hidden;
+}
+
+.faq-item:hover {
+    border-color: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.01);
+}
+
+.faq-question {
+    padding: 24px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.faq-question h3 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #fff;
+    margin: 0;
+}
+
+.faq-icon {
+    font-size: 1.5rem;
+    font-weight: 300;
+    color: var(--text-secondary);
+    transition: transform 0.3s ease;
+}
+
+.faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    padding: 0 28px;
+}
+
+.faq-answer p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.65;
+    padding-bottom: 24px;
+    margin: 0;
+}
+
+.faq-item.active {
+    border-color: rgba(95, 85, 250, 0.2);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.faq-item.active .faq-icon {
+    transform: rotate(45deg);
+    color: var(--accent-secondary);
+}
+
+/* Common Badge for Landing Page */
+.badge-glow {
+    background: rgba(6, 182, 212, 0.08);
+    color: var(--accent-secondary);
+    border: 1px solid rgba(6, 182, 212, 0.2);
+    padding: 6px 14px;
+    border-radius: 30px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    display: inline-block;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}

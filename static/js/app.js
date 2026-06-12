@@ -82,8 +82,59 @@ function toggleAuthTab(isRegister) {
     }
 }
 
-function scrollToFeatures() {
-    document.getElementById("landing-features").scrollIntoView({ behavior: 'smooth' });
+function scrollToSection(sectionId) {
+    const element = document.getElementById(sectionId);
+    if (!element) return;
+    
+    const headerOffset = 80; // height of landing-header
+    const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
+    const offsetPosition = elementPosition - headerOffset;
+    
+    window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+    });
+}
+
+function toggleFaq(faqItem) {
+    const isActive = faqItem.classList.contains("active");
+    
+    // Close other active FAQs
+    document.querySelectorAll(".faq-item").forEach(item => {
+        item.classList.remove("active");
+        const answer = item.querySelector(".faq-answer");
+        if (answer) answer.style.maxHeight = null;
+    });
+    
+    if (!isActive) {
+        faqItem.classList.add("active");
+        const answer = faqItem.querySelector(".faq-answer");
+        if (answer) {
+            answer.style.maxHeight = answer.scrollHeight + "px";
+        }
+    }
+}
+
+function switchLandingSdk(lang) {
+    // Switch active tab styling
+    const tabsContainer = document.querySelector(".sdk-preview-tabs");
+    if (tabsContainer) {
+        tabsContainer.querySelectorAll(".sdk-preview-tab").forEach(tab => {
+            tab.classList.remove("active");
+        });
+        const activeTab = Array.from(tabsContainer.querySelectorAll(".sdk-preview-tab")).find(t => t.getAttribute("onclick") && t.getAttribute("onclick").includes(lang));
+        if (activeTab) activeTab.classList.add("active");
+    }
+    
+    // Switch active code panel
+    const contentContainer = document.querySelector(".sdk-preview-content");
+    if (contentContainer) {
+        contentContainer.querySelectorAll(".sdk-preview-pane").forEach(pane => {
+            pane.classList.remove("active");
+        });
+        const activePane = document.getElementById(`landing-sdk-${lang}`);
+        if (activePane) activePane.classList.add("active");
+    }
 }
 
 // ==================== MODAL SYSTEM ====================
